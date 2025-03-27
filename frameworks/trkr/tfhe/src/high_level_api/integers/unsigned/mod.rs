@@ -1,0 +1,25 @@
+pub use base::{FheUint, FheUintId};
+
+expand_pub_use_fhe_type!(
+    pub use static_{
+        FheUint2, FheUint4, FheUint6, FheUint8, FheUint10, FheUint12, FheUint14, FheUint16,
+        FheUint32, FheUint64, FheUint128, FheUint160, FheUint256, FheUint512, FheUint1024, FheUint2048,
+    };
+);
+
+pub use compressed::CompressedFheUint;
+
+pub(in crate::high_level_api) use compressed::CompressedRadixCiphertext;
+pub(in crate::high_level_api) use inner::{RadixCiphertext, RadixCiphertextVersionOwned};
+
+mod base;
+mod compressed;
+mod static_;
+
+mod encrypt;
+mod inner;
+mod ops;
+mod overflowing_ops;
+pub(crate) mod scalar_ops;
+#[cfg(test)]
+mod tests;

@@ -1,0 +1,14 @@
+.cahce/
+.vscode/
+.idea/
+
+build/
+cmake-build-debug/
+helib.log
+
+# ignore the thirdparty directory
+thirdparty/tfhe
+thirdparty/HElib
+thirdparty/GMP
+thirdparty/NTL
+thirdparty/m4ri

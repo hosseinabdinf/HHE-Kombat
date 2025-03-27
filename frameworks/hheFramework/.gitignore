@@ -1,0 +1,14 @@
+.cache
+.idea
+.vscode
+
+build/
+cmake-build-debug/
+thirdparty/GMP
+thirdparty/HElib
+thirdparty/m4ri
+thirdparty/NTL
+thirdparty/SEAL
+thirdparty/tfhe
+
+helib.log

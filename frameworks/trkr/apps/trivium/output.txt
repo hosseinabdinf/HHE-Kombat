@@ -1,0 +1,349 @@
+
+
+ ⚡ root@3582ec80-ca9d-4cfa-8014-87cc2248d311  ~/Hossein/implementations/hhe/hhe_libs/trkr_tfhe/apps/trivium   main ±✚  ls
+benches  Cargo.toml  README.md  src
+ ⚡ root@3582ec80-ca9d-4cfa-8014-87cc2248d311  ~/Hossein/implementations/hhe/hhe_libs/trkr_tfhe/apps/trivium   main ±✚  clear
+
+
+ ⚡ root@3582ec80-ca9d-4cfa-8014-87cc2248d311  ~/Hossein/implementations/hhe/hhe_libs/trkr_tfhe/apps/trivium   main ±✚  cargo bench
+
+   Compiling tfhe-trivium v0.1.0 (/root/Hossein/implementations/hhe/hhe_libs/trkr_tfhe/apps/trivium)
+warning: unused import: `FheUint8`
+ --> apps/trivium/benches/kreyvium_bool.rs:6:51
+  |
+6 | use tfhe::{generate_keys, ConfigBuilder, FheBool, FheUint8};
+  |                                                   ^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `KreyviumStreamByte`
+ --> apps/trivium/benches/kreyvium_bool.rs:7:55
+  |
+7 | use tfhe_trivium::{print_cpu_and_mem, KreyviumStream, KreyviumStreamByte};
+  |                                                       ^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `FheBool`
+  --> apps/trivium/benches/trivium_shortint.rs:12:42
+   |
+12 | use tfhe::{generate_keys, ConfigBuilder, FheBool, FheUint64};
+   |                                          ^^^^^^^
+
+warning: unused import: `TriviumStream`
+  --> apps/trivium/benches/trivium_shortint.rs:13:55
+   |
+13 | use tfhe_trivium::{print_cpu_and_mem, TransCiphering, TriviumStream, TriviumStreamShortint};
+   |                                                       ^^^^^^^^^^^^^
+
+warning: unused import: `FheBool`
+ --> apps/trivium/benches/trivium_byte.rs:6:42
+  |
+6 | use tfhe::{generate_keys, ConfigBuilder, FheBool, FheUint64, FheUint8};
+  |                                          ^^^^^^^
+
+warning: unused import: `TriviumStream`
+ --> apps/trivium/benches/trivium_byte.rs:7:55
+  |
+7 | use tfhe_trivium::{print_cpu_and_mem, TransCiphering, TriviumStream, TriviumStreamByte};
+  |                                                       ^^^^^^^^^^^^^
+
+warning: unused import: `FheBool`
+  --> apps/trivium/benches/trivium_shortint.rs:12:42
+   |
+12 | use tfhe::{generate_keys, ConfigBuilder, FheBool, FheUint64};
+   |                                          ^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `FheBool`
+ --> apps/trivium/benches/trivium_byte.rs:6:42
+  |
+6 | use tfhe::{generate_keys, ConfigBuilder, FheBool, FheUint64, FheUint8};
+  |                                          ^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused variable: `final_mem`
+  --> apps/trivium/benches/kreyvium_byte.rs:90:9
+   |
+90 |     let final_mem = memory_stats().expect("Failed to get initial memory stats");
+   |         ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_final_mem`
+   |
+   = note: `#[warn(unused_variables)]` on by default
+
+^[[A^[[A^[[A^[[A^R                                              est), kreyvium_byte(bench), kreyvium_bool(bench), kreyvium_shortint(bench),
+trivium_byte(bench), tr...
+^[[A^R
+^^R
+warning: `tfhe-trivium` (bench "kreyvium_byte") generated 1 warning
+warning: `tfhe-trivium` (bench "trivium_byte") generated 2 warnings (1 duplicate) (run `cargo fix --bench "trivium_byte"` to apply 1 suggest
+ion)
+warning: `tfhe-trivium` (bench "kreyvium_bool") generated 2 warnings (2 duplicates)
+warning: `tfhe-trivium` (bench "trivium_shortint") generated 2 warnings (1 duplicate) (run `cargo fix --bench "trivium_shortint"` to apply 1
+ suggestion)
+warning: `tfhe-trivium` (bench "trivium") generated 7 warnings (1 duplicate) (run `cargo fix --bench "trivium"` to apply 6 suggestions)
+    Finished `bench` profile [optimized] target(s) in 1m 12s
+     Running unittests src/lib.rs (/root/Hossein/implementations/hhe/hhe_libs/trkr_tfhe/target/release/deps/tfhe_trivium-754a3adde2eeb740)
+
+running 22 tests
+test kreyvium::test::kreyvium_test_1 ... ignored
+test kreyvium::test::kreyvium_test_2 ... ignored
+test kreyvium::test::kreyvium_test_3 ... ignored
+test kreyvium::test::kreyvium_test_4 ... ignored
+test kreyvium::test::kreyvium_test_byte_long ... ignored
+test kreyvium::test::kreyvium_test_clear_byte ... ignored
+test kreyvium::test::kreyvium_test_fhe_byte_transciphering_long ... ignored
+test kreyvium::test::kreyvium_test_fhe_long ... ignored
+test kreyvium::test::kreyvium_test_shortint_long ... ignored
+test static_deque::static_byte_deque::tests::byte_deque_test ... ignored
+test static_deque::static_deque::tests::test_static_deque ... ignored
+test static_deque::static_deque::tests::test_static_deque_index_fail - should panic ... ignored
+test static_deque::static_deque::tests::test_static_deque_indexmut ... ignored
+test trivium::test::trivium_test_1 ... ignored
+test trivium::test::trivium_test_2 ... ignored
+test trivium::test::trivium_test_3 ... ignored
+test trivium::test::trivium_test_4 ... ignored
+test trivium::test::trivium_test_clear_byte ... ignored
+test trivium::test::trivium_test_fhe_byte_long ... ignored
+test trivium::test::trivium_test_fhe_byte_transciphering_long ... ignored
+test trivium::test::trivium_test_fhe_long ... ignored
+test trivium::test::trivium_test_shortint_long ... ignored
+
+test result: ok. 0 passed; 0 failed; 22 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running benches/kreyvium_bool.rs (/root/Hossein/implementations/hhe/hhe_libs/trkr_tfhe/target/release/deps/kreyvium_bool-7fb88bc1f8413b
+fa)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running benches/kreyvium_byte.rs (/root/Hossein/implementations/hhe/hhe_libs/trkr_tfhe/target/release/deps/kreyvium_byte-5b140b2ef54444
+9d)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running benches/kreyvium_shortint.rs (/root/Hossein/implementations/hhe/hhe_libs/trkr_tfhe/target/release/deps/kreyvium_shortint-8d3888
+a6bf9daf82)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running benches/trivium.rs (/root/Hossein/implementations/hhe/hhe_libs/trkr_tfhe/target/release/deps/trivium-406cafdb235033cc)
+Benchmarking trivium bool generate 64 bits: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 431.4s, or reduce sample count to 10.
+trivium bool generate 64 bits
+                        time:   [4.1947 s 4.2353 s 4.2757 s]
+                        change: [+1.1551% +2.4127% +3.6408%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+
+Average elapsed time: 4236.110128489542 ms
+Average CPU cycles: 8874492797
+Physical Memory used (KB): 179472
+Virtual Memory used (KB): 177848
+Benchmarking trivium bool warmup: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 7412.7s, or reduce sample count to 10.
+trivium bool warmup     time:   [72.759 s 73.154 s 73.589 s]
+                        change: [+1.5329% +2.1520% +2.7755%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 4 outliers among 100 measurements (4.00%)
+  3 (3.00%) high mild
+  1 (1.00%) high severe
+
+Average elapsed time: 73163.22316406677 ms
+Average CPU cycles: 153274198665
+Physical Memory used (KB): 133500
+Virtual Memory used (KB): 133484
+Benchmarking trivium 1_1 generate 64 bits: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 191.5s, or reduce sample count to 10.
+trivium 1_1 generate 64 bits
+                        time:   [1.8737 s 1.8863 s 1.8992 s]
+                        change: [-3.4806% -2.5980% -1.6579%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+
+Average elapsed time: 1887.1173257143987 ms
+Average CPU cycles: 3953441125
+Physical Memory used (KB): 730844
+Virtual Memory used (KB): 730732
+Benchmarking trivium 1_1 warmup: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 3258.6s, or reduce sample count to 10.
+trivium 1_1 warmup      time:   [33.044 s 33.116 s 33.185 s]
+                        change: [-2.8327% -2.4067% -2.0102%] (p = 0.00 < 0.05)
+                        Performance has improved.
+
+Average elapsed time: 32923.442584712335 ms
+Average CPU cycles: 68973374952
+Physical Memory used (KB): 1163568
+Virtual Memory used (KB): 1163528
+Benchmarking trivium 1_1 transencrypt 64 bits: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 206.8s, or reduce sample count to 10.
+trivium 1_1 transencrypt 64 bits
+                        time:   [2.0516 s 2.0682 s 2.0850 s]
+                        change: [-1.3952% -0.1683% +0.9672%] (p = 0.78 > 0.05)
+                        No change in performance detected.
+
+Average elapsed time: 2068.212677748284 ms
+Average CPU cycles: 4332828126
+Physical Memory used (KB): 697212
+Virtual Memory used (KB): 697288
+Benchmarking trivium byte generate 64 bits: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 581.4s, or reduce sample count to 10.
+trivium byte generate 64 bits
+                        time:   [5.6230 s 5.6607 s 5.6998 s]
+                        change: [+3.2966% +4.2965% +5.3122%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+
+Average elapsed time: 5662.2474328637 ms
+Average CPU cycles: 11862197623
+Physical Memory used (KB): 123344
+Virtual Memory used (KB): 123228
+Benchmarking trivium byte transencrypt 64 bits: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 781.7s, or reduce sample count to 10.
+trivium byte transencrypt 64 bits
+                        time:   [7.7890 s 7.8344 s 7.8797 s]
+                        change: [+1.7590% +2.5833% +3.3771%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+
+Average elapsed time: 7834.1826435207995 ms
+Average CPU cycles: 16412321990
+Physical Memory used (KB): 118680
+Virtual Memory used (KB): 118680
+Benchmarking trivium byte warmup: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 9556.1s, or reduce sample count to 10.
+trivium byte warmup     time:   [95.387 s 95.601 s 95.806 s]
+                        change: [+2.9709% +3.3112% +3.6645%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 3 outliers among 100 measurements (3.00%)
+  3 (3.00%) low mild
+
+Average elapsed time: 95600.15193957619 ms
+Average CPU cycles: 200278913036
+Physical Memory used (KB): 117680
+Virtual Memory used (KB): 117680
+Benchmarking kreyvium bool generate 64 bits: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 441.7s, or reduce sample count to 10.
+kreyvium bool generate 64 bits
+                        time:   [4.7427 s 4.7819 s 4.8218 s]
+                        change: [+3.2267% +4.4337% +5.7153%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+
+Average elapsed time: 4778.26701555056 ms
+Average CPU cycles: 10010290117
+Physical Memory used (KB): 117616
+Virtual Memory used (KB): 117612
+Benchmarking kreyvium bool warmup: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 8308.2s, or reduce sample count to 10.
+kreyvium bool warmup    time:   [82.405 s 82.723 s 83.018 s]
+                        change: [+2.3988% +2.8793% +3.3344%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 7 outliers among 100 measurements (7.00%)
+  4 (4.00%) low severe
+  3 (3.00%) low mild
+
+Average elapsed time: 82726.5421763989 ms
+Average CPU cycles: 173309152522
+Physical Memory used (KB): 117580
+Virtual Memory used (KB): 117580
+Benchmarking kreyvium 1_1 generate 64 bits: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 245.9s, or reduce sample count to 10.
+kreyvium 1_1 generate 64 bits
+                        time:   [2.4904 s 2.5089 s 2.5279 s]
+                        change: [-1.3634% -0.2333% +0.9227%] (p = 0.69 > 0.05)
+                        No change in performance detected.
+Found 4 outliers among 100 measurements (4.00%)
+  4 (4.00%) high mild
+
+Average elapsed time: 2507.456787555038 ms
+Average CPU cycles: 5253027840
+Physical Memory used (KB): 694504
+Virtual Memory used (KB): 694424
+Benchmarking kreyvium 1_1 warmup: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 4460.4s, or reduce sample count to 10.
+kreyvium 1_1 warmup     time:   [45.422 s 45.866 s 46.384 s]
+                        change: [+1.5862% +2.5778% +3.8847%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 11 outliers among 100 measurements (11.00%)
+  4 (4.00%) high mild
+  7 (7.00%) high severe
+
+Average elapsed time: 45666.571191532275 ms
+Average CPU cycles: 95669837263
+Physical Memory used (KB): 1163028
+Virtual Memory used (KB): 1163012
+Benchmarking kreyvium 1_1 transencrypt 64 bits: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 280.8s, or reduce sample count to 10.
+kreyvium 1_1 transencrypt 64 bits
+                        time:   [2.6573 s 2.6805 s 2.7041 s]
+                        change: [-0.6444% +0.6393% +1.9476%] (p = 0.32 > 0.05)
+                        No change in performance detected.
+
+Average elapsed time: 2684.176433459988 ms
+Average CPU cycles: 5623253803
+Physical Memory used (KB): 699664
+Virtual Memory used (KB): 699792
+Benchmarking kreyvium byte generate 64 bits: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 590.2s, or reduce sample count to 10.
+kreyvium byte generate 64 bits
+                        time:   [6.0033 s 6.0394 s 6.0753 s]
+                        change: [+3.2166% +4.0838% +4.9570%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+
+Average elapsed time: 6038.0775103680535 ms
+Average CPU cycles: 12649555738
+Physical Memory used (KB): 117584
+Virtual Memory used (KB): 117584
+Benchmarking kreyvium byte transencrypt 64 bits: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 781.2s, or reduce sample count to 10.
+kreyvium byte transencrypt 64 bits
+                        time:   [8.1357 s 8.1832 s 8.2328 s]
+                        change: [+4.8046% +5.6913% +6.5662%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 5 outliers among 100 measurements (5.00%)
+  5 (5.00%) high mild
+
+Average elapsed time: 8179.488574579614 ms
+Average CPU cycles: 17135723796
+Physical Memory used (KB): 117664
+Virtual Memory used (KB): 117664
+Benchmarking kreyvium byte warmup: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 10175.4s, or reduce sample count to 10.
+kreyvium byte warmup    time:   [102.87 s 103.11 s 103.36 s]
+                        change: [+4.9480% +5.2596% +5.6100%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 2 outliers among 100 measurements (2.00%)
+  1 (1.00%) high mild
+  1 (1.00%) high severe
+
+Average elapsed time: 103093.79196310036 ms
+Average CPU cycles: 215977636393
+Physical Memory used (KB): 118000
+Virtual Memory used (KB): 117980
+     Running benches/trivium_bool.rs (/root/Hossein/implementations/hhe/hhe_libs/trkr_tfhe/target/release/deps/trivium_bool-6f5cb280138d28b0
+)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running benches/trivium_byte.rs (/root/Hossein/implementations/hhe/hhe_libs/trkr_tfhe/target/release/deps/trivium_byte-78f9adf2a01b115a
+)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running benches/trivium_shortint.rs (/root/Hossein/implementations/hhe/hhe_libs/trkr_tfhe/target/release/deps/trivium_shortint-b3a30365
+a868111c)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+ ⚡ root@3582ec80-ca9d-4cfa-8014-87cc2248d311  ~/Hossein/implementations/hhe/hhe_libs/trkr_tfhe/apps/trivium   main 
+

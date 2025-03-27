@@ -1,0 +1,48 @@
+[package]
+name = "FiLIP"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+# FiLIP needs certain private functions of concrete to be accessible, this is what the FiLIP branch of concrete is used for
+[patch.crates-io]
+concrete-core = { git = "ssh://git@github.com/zama-ai/concrete", crate = "concrete-core", branch = "FiLIP", features=["multithread"] }
+concrete-commons = { git = "ssh://git@github.com/zama-ai/concrete", crate = "concrete-commons", branch = "FiLIP" }
+
+[dependencies]
+concrete-core = "1.0.1"
+concrete-commons = "0.2.0"
+concrete-fftw = "0.1.2"
+strum = "0.27.0"
+strum_macros = "0.27.0"
+rayon = "1.5.1"
+serde = "1.0.130"
+bincode = "2.0.0"
+
+crossterm = "0.28.1"
+
+[dev-dependencies]
+criterion = {version = "0.5.0", features = ["html_reports"]}
+pprof = { version = "0.14.0", features = ["flamegraph", "criterion"] }
+
+[[bench]]
+name = "benchmark-FiLIP"
+harness = false
+
+[[test]]
+name = "clear"
+harness = false
+
+[[test]]
+name = "homomorphic"
+harness = false
+
+[[test]]
+name = "multibit"
+harness = false
+
+[profile.bench]
+opt-level = 3
+debug = true
+lto = "thin"

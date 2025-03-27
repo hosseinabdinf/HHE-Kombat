@@ -1,0 +1,13 @@
+//#include "params.h"
+//#include "sampler.h"
+//#include "keygen.h"
+//#include "fft.h"
+//#include "ntruhe.h"
+//#include "lwehe.h"
+//
+#include "include_final/params.h"
+#include "include_final/sampler.h"
+#include "include_final/keygen.h"
+#include "include_final/fft.h"
+#include "include_final/ntruhe.h"
+#include "include_final/lwehe.h"
