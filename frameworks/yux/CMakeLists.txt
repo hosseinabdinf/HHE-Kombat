@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(Yux LANGUAGES CXX)
+project(yux LANGUAGES CXX)
 
 ## Use -std=c++17 as default.
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 ## if Debug
 set(CMAKE_BUILD_TYPE "Debug")
@@ -19,7 +19,7 @@ endif ()
 # Import HElib
 find_package(helib 2.2.0 REQUIRED
         # Optionally providing a path so this can be built without installing HElib
-        PATHS ${Yux_SOURCE_DIR}/thirdparty/HElib/install/share/cmake/helib
+        PATHS ${yux_SOURCE_DIR}/thirdparty/HElib/install/share/cmake/helib
 )
 
 set(M4RI_PREFIX "${CMAKE_SOURCE_DIR}/thirdparty/m4ri/installed")
@@ -33,18 +33,18 @@ endif ()
 
 
 # add symmetric library
-aux_source_directory("${CMAKE_SOURCE_DIR}/symmetric" SYMMETRIC_SRC_LIST)
+aux_source_directory("${CMAKE_SOURCE_DIR}/Yux" SYMMETRIC_SRC_LIST)
 add_library(Symmetric ${SYMMETRIC_SRC_LIST})
+target_include_directories(Symmetric PUBLIC ${HELIB_INCLUDE_DIRS})
+
 
 aux_source_directory("${CMAKE_SOURCE_DIR}/transciphering" TRANSCIPHER_SRC_LIST)
 add_library(Transcipher ${TRANSCIPHER_SRC_LIST})
-# add NTL include directory
 target_include_directories(Transcipher PUBLIC ${HELIB_INCLUDE_DIRS})
 
-message(STATUS "beark 1: ${TRANSCIPHER_SRC_LIST}")
+
+message(STATUS "break 1: ${TRANSCIPHER_SRC_LIST}")
 
 add_subdirectory(utils)
 
 add_subdirectory(tests)
-
-#aux_source_directory("Symmetric/" SYMMETRIC_FILES)

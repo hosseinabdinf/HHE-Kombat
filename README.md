@@ -38,8 +38,6 @@ Here are the links to original implementation:
 | Name (Link) | last modified |
 | ----- | ----- |
 | [Transcipher-Yux](https://github.com/YuXenc/Transcipher-Yux) | Jan 2, 2024 |
-| [Yux_FHE_HElib](https://github.com/YuXenc/Yux_FHE_HElib) | Aug 1, 2023 |
-| [Yux_FHE_HElib](https://github.com/YoLaughing/Yux_FHE_HElib) | Oct 7, 2022 |
 
 
 ## Getting Started
