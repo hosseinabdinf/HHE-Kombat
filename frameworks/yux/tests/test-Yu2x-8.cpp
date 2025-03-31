@@ -3,16 +3,15 @@
 #include <cstdio>
 
 #include "../Yux/Yu2x-8.h"
+#include "utils/printer.h"
 #include "utils/utils.h"
 
 #if 1
 // int main(int argc, char **argv)
 int main() {
-  // benchmarking variables
-  long start_mem, end_mem;
-  uint32_t aux;
-  uint64_t start_cycle, end_cycle;
-  struct timespec start_time, end_time;
+  Printer printer(true);
+  printer.PrintHeader("Yux 2-8 Symmetric Cipher");
+
 
   int ROUND = 12;
   int BlockSize = 128;
@@ -23,7 +22,8 @@ int main() {
   long roundKeySize = (Nr + 1) * Nk;
   unsigned char in[Nk], enced[Nk], Key[Nk], RoundKey[roundKeySize];
 
-  // Part 1 is for demonstrative purpose. The key and plaintext are given in the program itself.
+  // Part 1 is for demonstrative purpose. The key and plaintext are given in the
+  // program itself.
   //     Part 1: ********************************************************
   // The array temp stores the key.
   // The array temp2 stores the plaintext.
@@ -40,39 +40,13 @@ int main() {
   }
 
   // The KeyExpansion routine must be called before encryption.
-  PrintHeader("Symmetric Key Expansion");
-  clock_gettime(CLOCK_MONOTONIC, &start_time);
-  start_mem = GetMemoryUsage();
-  start_cycle = __rdtscp(&aux);
-
-  KeyExpansion(RoundKey, ROUND, BlockByte, Key);
-
-  end_cycle = __rdtscp(&aux);
-  end_mem = GetMemoryUsage();
-  clock_gettime(CLOCK_MONOTONIC, &end_time);
-  // print the benchmarks
-  cout << "-> done! \n";
-  PrintTimeNS(start_time, end_time);
-  PrintCycles(start_cycle, end_cycle);
-  PrintMemory(start_mem, end_mem);
+  BENCHMARK("Symmetric Key Expansion",
+            { KeyExpansion(RoundKey, ROUND, BlockByte, Key); });
 
   // Decrypt roundkey
-  PrintHeader("Decrypt RoundKey");
-  clock_gettime(CLOCK_MONOTONIC, &start_time);
-  start_mem = GetMemoryUsage();
-  start_cycle = __rdtscp(&aux);
-
   unsigned char RoundKey_invert[roundKeySize];
-  decRoundKey(RoundKey_invert, RoundKey, ROUND, BlockByte);
-
-  end_cycle = __rdtscp(&aux);
-  end_mem = GetMemoryUsage();
-  clock_gettime(CLOCK_MONOTONIC, &end_time);
-  // print the benchmarks
-  cout << "-> done! \n";
-  PrintTimeNS(start_time, end_time);
-  PrintCycles(start_cycle, end_cycle);
-  PrintMemory(start_mem, end_mem);
+  BENCHMARK("Decrypt RoundKey",
+            { decRoundKey(RoundKey_invert, RoundKey, ROUND, BlockByte); });
 
   // printf("roundKeySchedule---:\n");
   // for (int r = 0; r < ROUND + 1; r++) {
@@ -84,39 +58,16 @@ int main() {
   // }
   // printf("\nroundKeySchedule---END!\n");
 
-  // The next function call encrypts the PlainText with the Key using Symmetric algorithm.
-  PrintHeader("Symmetric Encryption");
-  clock_gettime(CLOCK_MONOTONIC, &start_time);
-  start_mem = GetMemoryUsage();
-  start_cycle = __rdtscp(&aux);
-
-  encryption(enced, in, RoundKey, ROUND);
-
-  end_cycle = __rdtscp(&aux);
-  end_mem = GetMemoryUsage();
-  clock_gettime(CLOCK_MONOTONIC, &end_time);
-  // print the benchmarks
-  cout << "-> done! \n";
-  PrintTimeNS(start_time, end_time);
-  PrintCycles(start_cycle, end_cycle);
-  PrintMemory(start_mem, end_mem);
-
-  PrintHeader("Symmetric Decryption");
-  clock_gettime(CLOCK_MONOTONIC, &start_time);
-  start_mem = GetMemoryUsage();
-  start_cycle = __rdtscp(&aux);
+  // The next function call encrypts the PlainText with the Key using Symmetric
+  // algorithm.
+  printer.PrintMessages("Number of plaintexts:", Nk,
+                        ", size of element (bit): ", sizeof(in[0])*8);
+  BENCHMARK("Symmetric Encryption",
+            { encryption(enced, in, RoundKey, ROUND); });
 
   unsigned char deced[Nk];
-  decryption(deced, enced, RoundKey_invert, ROUND);
-
-  end_cycle = __rdtscp(&aux);
-  end_mem = GetMemoryUsage();
-  clock_gettime(CLOCK_MONOTONIC, &end_time);
-  // print the benchmarks
-  cout << "-> done! \n";
-  PrintTimeNS(start_time, end_time);
-  PrintCycles(start_cycle, end_cycle);
-  PrintMemory(start_mem, end_mem);
+  BENCHMARK("Symmetric Decryption",
+            { decryption(deced, enced, RoundKey_invert, ROUND); });
 
   // output the original text.
   printf("\nText before encryption:\n");

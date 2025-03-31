@@ -3,6 +3,7 @@ project(Utils C)
 
 set(UTILS_SRC
     utils.c
+    printer.cpp
 )
 
 add_library(utils STATIC ${UTILS_SRC})

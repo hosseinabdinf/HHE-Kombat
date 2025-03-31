@@ -9,9 +9,9 @@
 #include <ctime>
 
 #include "../Yux/Yu2x-8.h"
-#include "../transciphering/printer.h"
 #include "../transciphering/trans-Yu2x-8-C1.h"
 #include "../transciphering/utils.h"
+#include "utils/printer.h"
 #include "utils/utils.h"
 
 using namespace helib;
@@ -19,7 +19,7 @@ using namespace std;
 using namespace NTL;
 
 #define homDec
-// #define DEBUG
+#define DEBUG
 
 int main(int argc, char **argv) {
   long idx = 3;  // 0
@@ -37,7 +37,8 @@ int main(int argc, char **argv) {
   Printer printer(true);
 
   printer.PrintHeader("Yu2x-8-C1");
-  printer.PrintMessages("Test Symmetric: [", "c=", c, ", packed=", packed, ", m=", m, ", rounds=", ROUND,
+  printer.PrintMessages("Test Symmetric: [", "c=", c, ", packed=", packed,
+                        ", m=", m, ", rounds=", ROUND,
                         ", block size=", BlockSize, ", bits=", bits, "]");
 
   // X^8+X^4+X^3+X+1
@@ -61,11 +62,10 @@ int main(int argc, char **argv) {
 
   // extension degree
   long e = mValues[idx][3] / 8;
-  printer.PrintMessages(" #slots=", context.getZMStar().getNSlots(),
+  printer.PrintMessages("#slots=", context.getZMStar().getNSlots(),
                         ", #blocks=", (context.getZMStar().getNSlots() / 8),
                         ", Ord(p)=", context.getZMStar().getOrdP());
-  if (packed) cout << ". x" << e << " ctxts";
-  cout << endl;
+  if (packed) printer.PrintMessages("#ciphertexts: ", e);
 
   // Generate homomorphic encrypted public and private keys
   printer.PrintMessage("Computing key-dependent tables...");
@@ -108,7 +108,8 @@ int main(int argc, char **argv) {
 
   // number of plaintext slots
   long nslots = ea.size();
-  printer.PrintMessages("#plaintext slots=", nslots, ", dim(Encrypted Array)=", ea.dimension(), "\n");
+  printer.PrintMessages("#plaintext slots=", nslots,
+                        ", dim(Encrypted Array)=", ea.dimension(), "\n");
 
   GF2X rnd;
   //  生成秘钥 Vec_length = BlockByte
@@ -124,37 +125,47 @@ int main(int argc, char **argv) {
   BytesFromGF2X(ptxt.data(), rnd, nBlocks * BlockByte);
 
 #ifdef DEBUG
-  /*---Test Begin----*/
+  printer.PrintMessage(
+      "Debug is enable, using the predefined symKey and plaintext.");
+
   unsigned char temp[16] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
                             0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F};
   unsigned char temp2[16] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
                              0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
 
-  // cout << "-------symKey: \n";
+  cout << "Old symKey:";
+  printState(symKey);
   for (int d = 0; d < BlockByte; d++) {
-    // printf("%02x ",symKey.data()[d]);
     symKey.data()[d] = temp[d];
-    // printf("[new] %02x ;",symKey.data()[d]);
   }
-  // cout << "\n-------Ptxt: \n";
+  cout << "New symKey:";
+  printState(symKey);
+
+  cout << "Old ptx:";
+  printState(ptxt);
   for (int d = 0; d < BlockByte; d++) {
-    // printf("%02x ", ptxt.data()[d]);
     ptxt.data()[d] = temp2[d % BlockByte];
-    // printf("[new] %02x ;",ptxt.data()[d]);
   }
-// cout << "-------Ptxt:  " << ptxt.data() << "\n\n";
-/*---Test END----*/
+  cout << "New ptx:";
+  printState(ptxt);
+  printer.PrintMessage("\n\n");
 #endif
 
   // 1. Symmetric encryption: symCtxt = Enc(symKey, ptxt)
   uint8_t keySchedule[BlockByte * (ROUND + 1)];
 
-  BENCHMARK("Symmetric Key Expansion", { KeyExpansion(keySchedule, ROUND, BlockByte, symKey.data()); });
+  BENCHMARK("Symmetric Key Expansion",
+            { KeyExpansion(keySchedule, ROUND, BlockByte, symKey.data()); });
+
+  printer.PrintMessages(
+      "Number of plaintexts:", ptxt.length(),
+      ", size of element (bit): ", sizeof(ptxt.data()[0]) * 8);
 
   BENCHMARK("Symmetric Encryption", {
     for (long i = 0; i < nBlocks; i++) {
       Vec<uint8_t> tmp(INIT_SIZE, BlockByte);
-      encryption(&symCtxt[BlockByte * i], &ptxt[BlockByte * i], keySchedule, ROUND);
+      encryption(&symCtxt[BlockByte * i], &ptxt[BlockByte * i], keySchedule,
+                 ROUND);
     }
   });
 
@@ -168,14 +179,24 @@ int main(int argc, char **argv) {
     trans.encryptSymKey(encryptedSymKey, symKey, publicKey, ea, key2dec);
   });
 
+  // print the HE.Enc(symKey) noise
+  printer.PrintMessage("HE.Enc(symKey) noise: ");
+  trans.print_noise(encryptedSymKey);
+
   // Perform homomorphic Symmetry
   vector<Ctxt> homEncrypted;
-  BENCHMARK("Transciphering (Sym.Dec) ...", { trans.homSymDec(homEncrypted, encryptedSymKey, symCtxt, ea); });
+  BENCHMARK("Transciphering (Sym.Dec) ...",
+            { trans.homSymDec(homEncrypted, encryptedSymKey, symCtxt, ea); });
+
+  // print the noise after transciphering
+  printer.PrintMessage("Transciphering (Sym.Dec) noise: ");
+  trans.print_noise(homEncrypted);
 
   // homomorphic decryption for final result
   Vec<ZZX> poly(INIT_SIZE, homEncrypted.size());
   BENCHMARK("Final Homomorphic Decryption & Decoding", {
-    for (long i = 0; i < poly.length(); i++) secretKey.Decrypt(poly[i], homEncrypted[i]);
+    for (long i = 0; i < poly.length(); i++)
+      secretKey.Decrypt(poly[i], homEncrypted[i]);
     trans.decodeTo1Ctxt(tmpBytes, poly, ea);
   });
 
@@ -184,7 +205,8 @@ int main(int argc, char **argv) {
   if (ptxt != tmpBytes) {
     cout << "@ decryption error\n";
     if (ptxt.length() != tmpBytes.length())
-      cout << " size mismatch, should be " << ptxt.length() << " but is " << tmpBytes.length() << endl;
+      cout << " size mismatch, should be " << ptxt.length() << " but is "
+           << tmpBytes.length() << endl;
     else {
       cout << "-> Original ptx: ";
       printState(ptxt);
@@ -196,7 +218,8 @@ int main(int argc, char **argv) {
     }
   } else {
     printer.PrintMessage("Yux Transciphering for Sym.Dec() was successful.");
-    cout << "-> After final homomorphic decryption the length of output is " << tmpBytes.length() << "\n";
+    cout << "-> After final homomorphic decryption the length of output is "
+         << tmpBytes.length() << "\n";
 
     cout << "-> Original ptx: ";
     printState(ptxt);

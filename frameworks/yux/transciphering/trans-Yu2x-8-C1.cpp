@@ -13,6 +13,20 @@ using namespace helib;
 using namespace std;
 using namespace NTL;
 
+// print the ciphertext noise
+int Transcipher1::print_noise(vector<Ctxt>& ciphs) {
+  int min = ciphs[0].bitCapacity();
+  int max = min;
+  for (uint64_t i = 1; i < ciphs.size(); i++) {
+    int budget = ciphs[i].bitCapacity();
+    if (budget > max) max = budget;
+    if (budget < min) min = budget;
+  }
+  cout << "min noise budget: " << min << endl;
+  cout << "max noise budget: " << max << endl;
+  return min;
+}
+
 // Encode plaintext/ciphertext bytes as native HE plaintext
 void Transcipher1::encodeTo1Ctxt(Vec<ZZX>& encData, const Vec<uint8_t>& data,
 		const EncryptedArrayDerived<PA_GF2>& ea)

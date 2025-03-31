@@ -3,32 +3,35 @@
 #include <cstdio>
 
 #include "../Yux/Yupx-p.h"
+#include "utils/printer.h"
 #include "utils/utils.h"
 
 #if 1
 // int main(int argc, char **argv)
 int main() {
-  // benchmarking variables
-  long start_mem, end_mem;
-  uint32_t aux;
-  uint64_t start_cycle, end_cycle;
-  struct timespec start_time, end_time;
+  Printer printer(true);
+  printer.PrintHeader("Yux F_p Symmetric Cipher");
 
   int i, Nr = 12;  // Nr is round number
   int Nk = 16;     // a block has Nk Words
   long roundKeySize = (Nr + 1) * Nk;
   uint64_t in[Nk], enced[Nk], Key[Nk], RoundKey[roundKeySize];
 
-  // Part 1 is for demonstrative purpose. The key and plaintext are given in the program itself.
+  // Part 1 is for demonstrative purpose. The key and plaintext are given in the
+  // program itself.
   //     Part 1: ********************************************************
   // The array temp stores the key.
   // The array temp2 stores the plaintext.
-  uint64_t plain[16] = {0x09990, 0x049e1, 0x0dac4, 0x053b5, 0x0ff86, 0x06f91, 0x07a8f, 0x0e700,
-                        0x0152e, 0x034b6, 0x0a16f, 0x01219, 0x00b83, 0x09ab7, 0x06b12, 0x0e2b1};
-  uint64_t plain1[16] = {0x09999, 0x09999, 0x09999, 0x09999, 0x09999, 0x09999, 0x09999, 0x09999,
-                         0x09999, 0x09999, 0x09999, 0x09999, 0x09999, 0x09999, 0x09999, 0x09999};
-  uint64_t temp3[16] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-  uint64_t temp2[16] = {0x30, 0x00, 0x22, 0x33, 0x30, 0x55, 0x66, 0x77, 0x30, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
+  uint64_t plain[16] = {0x09990, 0x049e1, 0x0dac4, 0x053b5, 0x0ff86, 0x06f91,
+                        0x07a8f, 0x0e700, 0x0152e, 0x034b6, 0x0a16f, 0x01219,
+                        0x00b83, 0x09ab7, 0x06b12, 0x0e2b1};
+  uint64_t plain1[16] = {0x09999, 0x09999, 0x09999, 0x09999, 0x09999, 0x09999,
+                         0x09999, 0x09999, 0x09999, 0x09999, 0x09999, 0x09999,
+                         0x09999, 0x09999, 0x09999, 0x09999};
+  uint64_t temp3[16] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+  uint64_t temp2[16] = {0x30, 0x00, 0x22, 0x33, 0x30, 0x55, 0x66, 0x77,
+                        0x30, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
   // Copy the Key and PlainText
   for (i = 0; i < Nk; i++) {
     Key[i] = temp3[i];
@@ -36,41 +39,13 @@ int main() {
   }
 
   Yux_F_p cipher = Yux_F_p(Nk, Nr, 65537);
-  //             ********************************************************
-  // The KeyExpansion routine must be called before encryption.
-  PrintHeader("Symmetric Key Expansion");
-  clock_gettime(CLOCK_MONOTONIC, &start_time);
-  start_mem = GetMemoryUsage();
-  start_cycle = __rdtscp(&aux);
 
-  cipher.KeyExpansion(RoundKey, Key);
-
-  end_cycle = __rdtscp(&aux);
-  end_mem = GetMemoryUsage();
-  clock_gettime(CLOCK_MONOTONIC, &end_time);
-  // print the benchmarks
-  cout << "-> done! \n";
-  PrintTimeNS(start_time, end_time);
-  PrintCycles(start_cycle, end_cycle);
-  PrintMemory(start_mem, end_mem);
+  BENCHMARK("Symmetric Key Expansion", { cipher.KeyExpansion(RoundKey, Key); });
 
   // Decrypt roundkey
-  PrintHeader("Decrypt RoundKey");
-  clock_gettime(CLOCK_MONOTONIC, &start_time);
-  start_mem = GetMemoryUsage();
-  start_cycle = __rdtscp(&aux);
-
   uint64_t RoundKey_invert[roundKeySize];
-  cipher.decRoundKey(RoundKey_invert, RoundKey);
-
-  end_cycle = __rdtscp(&aux);
-  end_mem = GetMemoryUsage();
-  clock_gettime(CLOCK_MONOTONIC, &end_time);
-  // print the benchmarks
-  cout << "-> done! \n";
-  PrintTimeNS(start_time, end_time);
-  PrintCycles(start_cycle, end_cycle);
-  PrintMemory(start_mem, end_mem);
+  BENCHMARK("Decrypt RoundKey",
+            { cipher.decRoundKey(RoundKey_invert, RoundKey); });
 
   // printf("roundKeySchedule---:\n");
   // for (int r = 0; r < Nr + 1; r++) {
@@ -94,39 +69,17 @@ int main() {
   // }
   // printf("\nRoundKey_invert---END!\n");
 
-  // The next function call encrypts the PlainText with the Key using Symmetric algorithm.
-  PrintHeader("Symmetric Encryption");
-  clock_gettime(CLOCK_MONOTONIC, &start_time);
-  start_mem = GetMemoryUsage();
-  start_cycle = __rdtscp(&aux);
+  // The next function call encrypts the PlainText with the Key using Symmetric
+  // algorithm.
+  printer.PrintMessages("Number of plaintexts:", Nk,
+                        ", size of element (bit): ", sizeof(in[0]) * 8);
 
-  cipher.encryption(enced, in, RoundKey);
-
-  end_cycle = __rdtscp(&aux);
-  end_mem = GetMemoryUsage();
-  clock_gettime(CLOCK_MONOTONIC, &end_time);
-  // print the benchmarks
-  cout << "-> done! \n";
-  PrintTimeNS(start_time, end_time);
-  PrintCycles(start_cycle, end_cycle);
-  PrintMemory(start_mem, end_mem);
-
-  PrintHeader("Symmetric Decryption");
-  clock_gettime(CLOCK_MONOTONIC, &start_time);
-  start_mem = GetMemoryUsage();
-  start_cycle = __rdtscp(&aux);
+  BENCHMARK("Symmetric Encryption",
+            { cipher.encryption(enced, in, RoundKey); });
 
   uint64_t deced[Nk];
-  cipher.decryption(deced, enced, RoundKey_invert);
-
-  end_cycle = __rdtscp(&aux);
-  end_mem = GetMemoryUsage();
-  clock_gettime(CLOCK_MONOTONIC, &end_time);
-  // print the benchmarks
-  cout << "-> done! \n";
-  PrintTimeNS(start_time, end_time);
-  PrintCycles(start_cycle, end_cycle);
-  PrintMemory(start_mem, end_mem);
+  BENCHMARK("Symmetric Decryption",
+            { cipher.decryption(deced, enced, RoundKey_invert); });
 
   // output the original text.
   printf("\nText before encryption:\n");

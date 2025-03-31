@@ -3,15 +3,13 @@
 #include <cstdio>
 
 #include "../Yux/Yu2x-16.h"
+#include "utils/printer.h"
 #include "utils/utils.h"
 
 #if 1
 int main() {
-  // benchmarking variables
-  long start_mem, end_mem;
-  uint32_t aux;
-  uint64_t start_cycle, end_cycle;
-  struct timespec start_time, end_time;
+  Printer printer(true);
+  printer.PrintHeader("Yux 2-16 Symmetric Cipher");
 
   int ROUND = 12;
   int BlockSize = 256;
@@ -30,16 +28,19 @@ int main() {
   Vec<GF2E> RoundKey;
   unsigned char in[32], enced[32], deced[32], Key[32];
 
-  // Part 1 is for demonstrative purpose. The key and plaintext are given in the program itself.
+  // Part 1 is for demonstrative purpose. The key and plaintext are given in the
+  // program itself.
   // *****************************************************
-  unsigned char temp[32] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A,
-                            0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
-                            0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F};
+  unsigned char temp[32] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                            0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+                            0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                            0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F};
   unsigned char temp3[32] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-  unsigned char temp2[32] = {0x30, 0x00, 0x22, 0x33, 0x30, 0x55, 0x66, 0x77, 0x30, 0x99, 0xAA,
-                             0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x30, 0x00, 0x22, 0x33, 0x30, 0x55,
-                             0x66, 0x77, 0x30, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
+  unsigned char temp2[32] = {0x30, 0x00, 0x22, 0x33, 0x30, 0x55, 0x66, 0x77,
+                             0x30, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                             0x30, 0x00, 0x22, 0x33, 0x30, 0x55, 0x66, 0x77,
+                             0x30, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
 
   // Copy the Key and PlainText
   for (i = 0; i < BlockByte; i++) {
@@ -47,30 +48,16 @@ int main() {
     in[i] = temp2[i];
   }
 
-  //             ********************************************************
   // The KeyExpansion routine must be called before encryption.
-  PrintHeader("Symmetric Key Expansion");
-  clock_gettime(CLOCK_MONOTONIC, &start_time);
-  start_mem = GetMemoryUsage();
-  start_cycle = __rdtscp(&aux);
-
   RoundKey.SetLength(Nk * (Nr + 1));
   unsigned char RoundKeyCh[BlockByte * (Nr + 1)];
-  Yu2x_16_KeyExpansion(RoundKeyCh, ROUND, BlockByte, Key);
+  BENCHMARK("Symmetric Key Expansion",
+            { Yu2x_16_KeyExpansion(RoundKeyCh, ROUND, BlockByte, Key); });
 
   for (i = 0; i < Nk * (Nr + 1); i++) {
     unsigned char tmp[2] = {RoundKeyCh[2 * i], RoundKeyCh[2 * i + 1]};
     RoundKey[i] = conv<GF2E>(GF2XFromBytes(tmp, 2));
   }
-
-  end_cycle = __rdtscp(&aux);
-  end_mem = GetMemoryUsage();
-  clock_gettime(CLOCK_MONOTONIC, &end_time);
-  // print the benchmarks
-  cout << "-> done! \n";
-  PrintTimeNS(start_time, end_time);
-  PrintCycles(start_cycle, end_cycle);
-  PrintMemory(start_mem, end_mem);
 
   // printf("RoundKey---:\n");
   //   for(int r=0;r<Nk*(Nr+1); r++)
@@ -86,58 +73,23 @@ int main() {
   //     cout<< "\n";
   //   }
   //   printf("RoundKey---END!\n");
-  // Decrypt roundkey
-  PrintHeader("Decrypt RoundKey");
-  clock_gettime(CLOCK_MONOTONIC, &start_time);
-  start_mem = GetMemoryUsage();
-  start_cycle = __rdtscp(&aux);
 
+  // Decrypt roundkey
   Vec<GF2E> RoundKey_invert;
   RoundKey_invert.SetLength(Nk * (Nr + 1));
-  Yu2x_16_decRoundKey(RoundKey_invert, RoundKey, ROUND, Nk);
-
-  end_cycle = __rdtscp(&aux);
-  end_mem = GetMemoryUsage();
-  clock_gettime(CLOCK_MONOTONIC, &end_time);
-  // print the benchmarks
-  cout << "-> done! \n";
-  PrintTimeNS(start_time, end_time);
-  PrintCycles(start_cycle, end_cycle);
-  PrintMemory(start_mem, end_mem);
+  BENCHMARK("Decrypt RoundKey",
+            { Yu2x_16_decRoundKey(RoundKey_invert, RoundKey, ROUND, Nk); });
 
   // RoundKey_invert = RoundKey;
-  PrintHeader("Symmetric Encryption");
-  clock_gettime(CLOCK_MONOTONIC, &start_time);
-  start_mem = GetMemoryUsage();
-  start_cycle = __rdtscp(&aux);
+  printer.PrintMessages("Number of plaintexts:", 32,
+                        ", size of element (bit): ", sizeof(in[0]) * 8);
 
-  Yu2x_16_encryption(enced, in, RoundKey, ROUND);
-
-  end_cycle = __rdtscp(&aux);
-  end_mem = GetMemoryUsage();
-  clock_gettime(CLOCK_MONOTONIC, &end_time);
-  // print the benchmarks
-  cout << "-> done! \n";
-  PrintTimeNS(start_time, end_time);
-  PrintCycles(start_cycle, end_cycle);
-  PrintMemory(start_mem, end_mem);
+  BENCHMARK("Symmetric Encryption",
+            { Yu2x_16_encryption(enced, in, RoundKey, ROUND); });
 
   // deced.SetLength(Nk);
-  PrintHeader("Symmetric Decryption");
-  clock_gettime(CLOCK_MONOTONIC, &start_time);
-  start_mem = GetMemoryUsage();
-  start_cycle = __rdtscp(&aux);
-
-  Yu2x_16_decryption(deced, enced, RoundKey_invert, ROUND);
-
-  end_cycle = __rdtscp(&aux);
-  end_mem = GetMemoryUsage();
-  clock_gettime(CLOCK_MONOTONIC, &end_time);
-  // print the benchmarks
-  cout << "-> done! \n";
-  PrintTimeNS(start_time, end_time);
-  PrintCycles(start_cycle, end_cycle);
-  PrintMemory(start_mem, end_mem);
+  BENCHMARK("Symmetric Decryption",
+            { Yu2x_16_decryption(deced, enced, RoundKey_invert, ROUND); });
 
   // output the original text.
   printf("\nText before encryption:\n");

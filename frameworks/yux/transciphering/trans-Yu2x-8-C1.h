@@ -31,6 +31,8 @@ static long mValues[][5] = {
 class Transcipher1
 {
 public:
+// print the ciphertexts max and min noise
+int print_noise(vector<Ctxt>& ciphs);
 
 // Encode plaintext/ciphertext bytes as native HE plaintext
 void encodeTo1Ctxt(Vec<ZZX>& encData, const Vec<uint8_t>& data,
