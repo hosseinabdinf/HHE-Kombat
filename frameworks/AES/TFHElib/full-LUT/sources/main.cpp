@@ -51,12 +51,13 @@ int main() {
                                             params_bk);
   uint32_t seed[] = {314, 1592, 657, 26363, 394, 4958, 4059, 3845};
   tfhe_random_generator_setSeed(seed, 8);
-  TFheGateBootstrappingSecretKeySet* key =
+  TFheGateBootstrappingSecretKeySet* tfhe_gbst_SK =
       new_random_gate_bootstrapping_secret_keyset(params);
-  const LweKey* k_in = key->lwe_key;
-  const TLweKey* k_out = &key->tgsw_key->tlwe_key;
-  BaseBKeySwitchKey* ks_key = new_BaseBKeySwitchKey(
-      key->lwe_key->params->n, 2, 10, 16, key->cloud.bk->accum_params);
+  const LweKey* k_in = tfhe_gbst_SK->lwe_key;
+  const TLweKey* k_out = &tfhe_gbst_SK->tgsw_key->tlwe_key;
+  BaseBKeySwitchKey* ks_key =
+      new_BaseBKeySwitchKey(tfhe_gbst_SK->lwe_key->params->n, 2, 10, 16,
+                            tfhe_gbst_SK->cloud.bk->accum_params);
   BaseBExtra::CreateKeySwitchKey(ks_key, k_in, k_out);
 
   printer.PrintMessage("Done ! Now AES execution");
@@ -81,32 +82,28 @@ int main() {
   ROUNDS = 10;
   BENCHMARK("Symmetric Key Expansion", { KeyExpansion(sk, rk, 4, 4, ROUNDS); });
 
+  // encrypt the round keys (rk) using the FHE key
   vector<LweSample*> rk_fhe[MAXROUNDS + 1][4][8];
-  for (int i = 0; i < MAXROUNDS + 1; ++i) Enc_tab(rk_fhe[i], rk[i], key);
+  for (int i = 0; i < MAXROUNDS + 1; ++i)
+    Enc_tab(rk_fhe[i], rk[i], tfhe_gbst_SK);
 
+  // encrypt the plaintext (a) using the FHE key
   vector<LweSample*> a_fhe[4][8];
-  BENCHMARK("TFHE-Sym-Encryption", { Enc_tab(a_fhe, a, key); });
+  cout << "-> #Plaintexts: " << 32
+       << ", Size(plaintext[0]):" << sizeof(a[0][0]) * 8 << " bits" << endl;
+  BENCHMARK("TFHE-Sym-Encryption", { Enc_tab(a_fhe, a, tfhe_gbst_SK); });
 
   // double elapsed = 0;
   float acc = 0;
 
-  // struct timespec begin, end;
-  // clock_gettime(CLOCK_REALTIME, &begin);
-
   BENCHMARK("Transciphering",
-            { Encrypt_fhe(a_fhe, rk_fhe, ROUNDS, key, ks_key); });
-
-  // clock_gettime(CLOCK_REALTIME, &end);
-  // long seconds = end.tv_sec - begin.tv_sec;
-  // long nanoseconds = end.tv_nsec - begin.tv_nsec;
-  // elapsed = seconds + nanoseconds * 1e-9;
-  // acc += elapsed;
+            { Encrypt_fhe(a_fhe, rk_fhe, ROUNDS, tfhe_gbst_SK, ks_key); });
 
   for (int i = 0; i < 4; ++i) {
     for (int j = 0; j < 8; ++j) {
-      int32_t decr0 = lweSymDecrypt(a_fhe[i][j][0], key->lwe_key, 32);
+      int32_t decr0 = lweSymDecrypt(a_fhe[i][j][0], tfhe_gbst_SK->lwe_key, 32);
       double decrd0 = t32tod(decr0);
-      int32_t decr1 = lweSymDecrypt(a_fhe[i][j][1], key->lwe_key, 32);
+      int32_t decr1 = lweSymDecrypt(a_fhe[i][j][1], tfhe_gbst_SK->lwe_key, 32);
       double decrd1 = t32tod(decr1);
       a[i][j] = (int)(decrd0 * 32 + base) % base +
                 (int)(decrd1 * 32 + base) % base * base;
@@ -117,10 +114,10 @@ int main() {
     for (int j = 0; j < 4; ++j) printf("%.2x", a[j][i]);
   }
   printf("\n");
-  delete_gate_bootstrapping_secret_keyset(key);
+  delete_gate_bootstrapping_secret_keyset(tfhe_gbst_SK);
   delete_gate_bootstrapping_parameters(params);
   delete_BaseBKeySwitchKey(ks_key);
-  printf("verification: 69c4e0d86a7b0430d8cdb78070b4c55a\n");
+  printf("[a] (verification): 69c4e0d86a7b0430d8cdb78070b4c55a\n");
   printer.PrintMessage("Done!");
 
   return 0;

@@ -2,39 +2,36 @@
 
 #include <stdio.h>
 
-long GetMemoryUsage() {
-  // currently allocated memory
-  long resident_set;
+void GetMemoryUsage(long* camem, long* heapmem, long* physmem) {
+  long resident_set = 0;
   FILE* fp = fopen("/proc/self/statm", "r");
-  // if (fp) {
-  //   fscanf(fp, "%*s %ld", &resident_set);
-  //   fclose(fp);
-  // }
 
   if (fp) {
     if (fscanf(fp, "%*s %ld", &resident_set) != 1) {
-      fprintf(stderr, "Warning: Failed to read memory usage from /proc/self/statm\n");
+      fprintf(stderr,
+              "Warning: Failed to read memory usage from /proc/self/statm\n");
     }
     fclose(fp);
   }
 
-  long camem = resident_set * (sysconf(_SC_PAGESIZE) / 1024);  // KB
+  *camem = resident_set * (sysconf(_SC_PAGESIZE) / 1024);  // KB
 
   // Heap memory
   struct mallinfo2 mi = mallinfo2();
-  long heapmem = mi.uordblks / 1024;  // Bytes to KB
+  *heapmem = mi.uordblks / 1024;  // Bytes to KB
 
-  // maximum resident set size (RSS)
-  long physmem = -1;
+  // Maximum resident set size (RSS)
   struct rusage usage;
   if (getrusage(RUSAGE_SELF, &usage) != 0) {
     perror(" >>> getrusage failed!");
+    *physmem = -1;
   } else {
-    physmem = usage.ru_maxrss;
+    *physmem = usage.ru_maxrss;
   }
 
-  printf("> Memory Status (Allocated: %ld KB, Physical: %ld KB, Heap: %ld KB)\n", camem, physmem, heapmem);
-  return camem;
+  printf(
+      "> Memory Status (Allocated: %ld KB, Physical: %ld KB, Heap: %ld KB)\n",
+      *camem, *physmem, *heapmem);
 }
 
 void PrintTimeNS(struct timespec start, struct timespec end) {
@@ -46,8 +43,14 @@ void PrintTimeNS(struct timespec start, struct timespec end) {
   printf("-> Time: %.4f (ms), %ld (ns)\n", diff_ms, diff_ns);
 }
 
-void PrintCycles(uint64_t start, uint64_t end) { printf("-> Cycles: %ld\n", (end - start)); }
+void PrintCycles(uint64_t start, uint64_t end) {
+  printf("-> Cycles: %ld\n", (end - start));
+}
 
-void PrintMemory(long start, long end) { printf("-> Memory: %ld KB\n", end - start); }
+void PrintMemory(const char* name, long start, long end) {
+  printf("-> %s Memory: %ld KB\n", name, end - start);
+}
 
-void PrintHeader(const char* header) { printf("-=== %s ===-\n", header); }
+void PrintHeader(const char* header) {
+  printf("\n ------------------===|\t %s \t|===------------------\n", header);
+}
