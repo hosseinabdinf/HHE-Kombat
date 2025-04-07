@@ -6,3 +6,6 @@ target/
 **/*.rmeta
 **/Cargo.lock
 **/*.bin
+
+/core
+core

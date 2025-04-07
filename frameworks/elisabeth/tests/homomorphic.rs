@@ -1,35 +1,22 @@
 use concrete_core::{crypto::encoding::Plaintext, math::random::RandomGenerator};
-use crossterm::{cursor, QueueableCommand};
+use elisabeth::benchmark_utils::{benchmark, print_header, print_message};
 use elisabeth::{u4, Encrypter, SystemParameters, Torus, LWE};
-use std::{
-    env,
-    io::{stdout, Write},
-    time::Instant,
-};
+use std::{env, time::Instant};
 
 fn main() {
+    print_header("Elisabeth Transciphering Benchmarking");
+
     let args: Vec<String> = env::args().collect();
     let nb_nibble = args[1].parse().unwrap();
 
-    let mut stdout = stdout();
-    stdout.queue(cursor::SavePosition).unwrap();
-    stdout
-        .write(format!("Generating FHE keys...                       ").as_bytes())
-        .unwrap();
-    stdout.queue(cursor::RestorePosition).unwrap();
-    stdout.flush().unwrap();
+    print_message("Generating FHE keys...                       ");
 
     #[cfg(not(feature = "single_key"))]
     let ((sk, std_dev_lwe), sk_out, pk) = SystemParameters::n60.generate_fhe_keys();
     #[cfg(feature = "single_key")]
     let ((sk, std_dev_lwe), pk) = SystemParameters::n60.generate_fhe_keys();
 
-    stdout.queue(cursor::SavePosition).unwrap();
-    stdout
-        .write(format!("Generating Elisabeth keys...                 ").as_bytes())
-        .unwrap();
-    stdout.queue(cursor::RestorePosition).unwrap();
-    stdout.flush().unwrap();
+    print_message("Generating Elisabeth keys...                 ");
 
     let (mut encrypter, mut decrypter) = Encrypter::<u4>::new::<LWE>(
         &SystemParameters::n60,
@@ -38,12 +25,7 @@ fn main() {
         Some(pk),
     );
 
-    stdout.queue(cursor::SavePosition).unwrap();
-    stdout
-        .write(format!("Generating message...                        ").as_bytes())
-        .unwrap();
-    stdout.queue(cursor::RestorePosition).unwrap();
-    stdout.flush().unwrap();
+    print_message("Generating message...                        ");
 
     // message
     let mut generator = RandomGenerator::new(None);
@@ -54,27 +36,25 @@ fn main() {
         .map(|f| u4(*f))
         .collect::<Vec<u4>>();
 
+    println!("--> Message size: {} bits", nb_nibble * 4);
+    message.iter().for_each(|val| {
+        println!("---> message = {:04b}", val.0); // prints 4-bit binary
+    });
+
     let mut ciphertext = vec![u4(0); nb_nibble];
     let mut transciphered = vec![LWE::allocate(sk.key_size().to_lwe_size()); nb_nibble];
 
-    stdout.queue(cursor::SavePosition).unwrap();
-    stdout
-        .write(format!("Encrypting...                                ").as_bytes())
-        .unwrap();
-    stdout.queue(cursor::RestorePosition).unwrap();
-    stdout.flush().unwrap();
+    print_message("Encrypting...                                ");
 
     encrypter.encrypt(&mut ciphertext, &message);
 
-    stdout.queue(cursor::SavePosition).unwrap();
-    stdout
-        .write(format!("Transciphering...                            ").as_bytes())
-        .unwrap();
-    stdout.queue(cursor::RestorePosition).unwrap();
-    stdout.flush().unwrap();
+    print_message("Transciphering...                            ");
 
     let now = Instant::now();
-    decrypter.decrypt(&mut transciphered, &ciphertext);
+    benchmark("HE.Decomp()", 50, || {
+        decrypter.decrypt(&mut transciphered, &ciphertext);
+    });
+
     println!(
         "{} nibbles transcrypted in {} s. ({} s/nibble, {} s/b)",
         nb_nibble,

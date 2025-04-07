@@ -64,3 +64,42 @@ To run in monothread, add `--no-default-features`.
 
 ## How to cite
 More on that soon.
+
+
+# How to Benchmark (new)
+## Benchmark Symmetric Encryption
+To benchmark the symmetric encryption you need to run the following command:
+```
+cargo test --release --test clear -- 1
+```
+
+## Benchmark Transciphering
+To benchmark transciphering you have 4 different variation of featurtes, that you can run as follow:
+
+Run with [multi-thread, two keyswitching]:
+
+```
+cargo test --release --test homomorphic -- 1
+```
+
+Run with [multi-thread, single keyswitching]:
+
+```
+cargo test --features "single_key multithread" --release --test homomorphic -- 1
+```
+
+
+Run with [single-thread, two keyswitching]
+
+```
+cargo test --no-default-features --release --test homomorphic -- 1
+```
+
+
+Run with [single-thread, single keyswitching]:
+
+```
+cargo test --no-default-features --features single_key --release --test homomorphic -- 1
+```
+
+
