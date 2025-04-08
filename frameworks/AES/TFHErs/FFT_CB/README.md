@@ -11,3 +11,21 @@ We implement:
 ## How to use
 - bench: `cargo bench --bench 'benchmark_name'`
   - Current sample size is set to 1000. It can be changed by modifying `config = Criterion::default().sample_size(1000);`
+
+
+
+# Benchmarking
+
+To execute the benchmarks, use the following commands:
+
+## AES half-cbs
+
+```
+cargo test --release --package auto-base-conv --test test_aes_half_cbs
+```
+
+## AES
+
+```
+cargo test --release --package auto-base-conv --test test_aes
+```

@@ -12,3 +12,12 @@ cd Fregata
 * GBSmode:  cd GBSmode;mkdir build; cd build;cmake ..; make
 * FBSmode: cd FBSmode;mkdir build; cd build;cmake ..; make
 * CBSmode: cd CBSmode;mkdir build; cd build;cmake -DENABLE_TEST=ON ..; make; cd homoSM4_CB
+
+
+# Benchmarking AES CBS mode (new)
+
+Just run the benchmark shell file:
+
+```
+./benchmark.sh
+```
