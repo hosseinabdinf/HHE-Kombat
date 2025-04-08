@@ -1,4 +1,7 @@
-use crate::{TransCiphering, TriviumStream, TriviumStreamByte, TriviumStreamShortint};
+use crate::{
+    benchmark, print_header, TransCiphering, TriviumStream, TriviumStreamByte,
+    TriviumStreamShortint,
+};
 use tfhe::prelude::*;
 use tfhe::shortint::parameters::v1_0::{
     V1_0_PARAM_KEYSWITCH_1_1_KS_PBS_TO_2_2_KS_PBS_GAUSSIAN_2M128,
@@ -91,9 +94,18 @@ fn trivium_test_1() {
     let mut trivium = TriviumStream::<bool>::new(key, iv);
 
     let mut vec = Vec::<bool>::with_capacity(512 * 8);
-    while vec.len() < 512 * 8 {
-        vec.push(trivium.next_bool());
-    }
+
+    print_header("Trivium SKE Test 1 <bool>");
+    // print the iv and key size in bits
+    println!("IV size: {} bits", iv.len());
+    println!("Key size: {} bits", key.len());
+    println!("Output size: {} bits", vec.capacity());
+
+    benchmark("SKE.Enc()", 100, || {
+        while vec.len() < 512 * 8 {
+            vec.push(trivium.next_bool());
+        }
+    });
 
     let hexadecimal = get_hexadecimal_string_from_lsb_first_stream(vec);
     assert_eq!(output_0_63, hexadecimal[0..64 * 2]);
@@ -116,9 +128,18 @@ fn trivium_test_2() {
     let mut trivium = TriviumStream::<bool>::new(key, iv);
 
     let mut vec = Vec::<bool>::with_capacity(512 * 8);
-    while vec.len() < 512 * 8 {
-        vec.push(trivium.next_bool());
-    }
+
+    print_header("Trivium SKE Test 2 <bool>");
+    // print the iv and key size in bits
+    println!("IV size: {} bits", iv.len());
+    println!("Key size: {} bits", key.len());
+    println!("Output size: {} bits", vec.capacity());
+
+    benchmark("SKE.Enc()", 100, || {
+        while vec.len() < 512 * 8 {
+            vec.push(trivium.next_bool());
+        }
+    });
 
     let hexadecimal = get_hexadecimal_string_from_lsb_first_stream(vec);
     assert_eq!(output_0_63, hexadecimal[0..64 * 2]);
@@ -141,9 +162,18 @@ fn trivium_test_3() {
     let mut trivium = TriviumStream::<bool>::new(key, iv);
 
     let mut vec = Vec::<bool>::with_capacity(512 * 8);
-    while vec.len() < 512 * 8 {
-        vec.push(trivium.next_bool());
-    }
+
+    print_header("Trivium SKE Test 3 <bool>");
+    // print the iv and key size in bits
+    println!("IV size: {} bits", iv.len());
+    println!("Key size: {} bits", key.len());
+    println!("Output size: {} bits", vec.capacity());
+
+    benchmark("SKE.Enc()", 100, || {
+        while vec.len() < 512 * 8 {
+            vec.push(trivium.next_bool());
+        }
+    });
 
     let hexadecimal = get_hexadecimal_string_from_lsb_first_stream(vec);
     assert_eq!(output_0_63, hexadecimal[0..64 * 2]);
@@ -184,9 +214,18 @@ fn trivium_test_4() {
     let mut trivium = TriviumStream::<bool>::new(key, iv);
 
     let mut vec = Vec::<bool>::with_capacity(131072 * 8);
-    while vec.len() < 131072 * 8 {
-        vec.push(trivium.next_bool());
-    }
+
+    print_header("Trivium SKE Test 4 <bool>");
+    // print the iv and key size in bits
+    println!("IV size: {} bits", iv.len());
+    println!("Key size: {} bits", key.len());
+    println!("Output size: {} bits", vec.capacity());
+
+    benchmark("SKE.Enc()", 100, || {
+        while vec.len() < 131072 * 8 {
+            vec.push(trivium.next_bool());
+        }
+    });
 
     let hexadecimal = get_hexadecimal_string_from_lsb_first_stream(vec);
     assert_eq!(output_0_63, hexadecimal[0..64 * 2]);
@@ -349,6 +388,23 @@ fn trivium_test_fhe_byte_transciphering_long() {
     }
 
     let hexadecimal = get_hexagonal_string_from_u64(vec);
+
+    // do the benchmarking before assertation
+    print_header("Trivium Transciphering Test Byte");
+    // print the iv and key size in bits
+    println!("IV size: {} * 8 = {} bits", iv.len(), iv.len() * 8);
+    println!("Key size: {} * 8 = {} bits", key.len(), key.len() * 8);
+    println!(
+        "Input size: {} * 64 = {} bits",
+        ciphered_message.len(),
+        std::mem::size_of::<u64>() * 8 * ciphered_message.len()
+    );
+
+    let mut test_transciphered_message = ciphered_message[0].clone();
+    benchmark("HHE.Decomp()", 10, || {
+        test_transciphered_message = trivium.trans_encrypt_64(ciphered_message[0].clone());
+    });
+
     assert_eq!(output_0_63, hexadecimal[0..64 * 2]);
 }
 
@@ -408,5 +464,22 @@ fn trivium_test_shortint_long() {
     }
 
     let hexadecimal = get_hexagonal_string_from_u64(vec);
+
+    // do the benchmarking before assertation
+    print_header("Trivium Transciphering Test Short-Int");
+    // print the iv and key size in bits
+    println!("IV size: {} * 64 = {} bits", iv.len(), iv.len() * 64);
+    println!("Key size: {} * 64 = {} bits", key.len(), key.len() * 64);
+    println!(
+        "Input size: {} * 64 = {} bits",
+        ciphered_message.len(),
+        std::mem::size_of::<u64>() * 8 * ciphered_message.len()
+    );
+
+    let mut test_transciphered_message = ciphered_message[0].clone();
+    benchmark("HHE.Decomp()", 10, || {
+        test_transciphered_message = trivium.trans_encrypt_64(ciphered_message[0].clone());
+    });
+
     assert_eq!(output_0_63, hexadecimal[0..64 * 2]);
 }

@@ -1,20 +1,15 @@
 use criterion::Criterion;
-use memory_stats::memory_stats;
-use std::arch::x86_64::_rdtsc;
-use std::sync::{Arc, Mutex};
 use tfhe::prelude::*;
-use tfhe::shortint::parameters::v1_0::{
+use tfhe::shortint::parameters::v1_1::{
     V1_0_PARAM_KEYSWITCH_1_1_KS_PBS_TO_2_2_KS_PBS_GAUSSIAN_2M128,
     V1_0_PARAM_MESSAGE_1_CARRY_1_KS_PBS_GAUSSIAN_2M128,
     V1_0_PARAM_MESSAGE_2_CARRY_2_KS_PBS_GAUSSIAN_2M128,
 };
 use tfhe::shortint::prelude::*;
-use tfhe::{generate_keys, ConfigBuilder, FheBool, FheUint64};
-use tfhe_trivium::{print_cpu_and_mem, TransCiphering, TriviumStream, TriviumStreamShortint};
+use tfhe::{generate_keys, ConfigBuilder, FheUint64};
+use tfhe_trivium::{TransCiphering, TriviumStreamShortint};
 
 pub fn trivium_shortint_warmup(c: &mut Criterion) {
-    let initial_mem = memory_stats().expect("Failed to get initial memory stats");
-
     let config = ConfigBuilder::default()
         .use_custom_parameters(V1_0_PARAM_MESSAGE_2_CARRY_2_KS_PBS_GAUSSIAN_2M128)
         .build();
@@ -53,29 +48,8 @@ pub fn trivium_shortint_warmup(c: &mut Criterion) {
         }
     }
 
-    // once for memory benchmarking
-    let cipher_key = key.map(|x| client_key.encrypt(x));
-    let _trivium = TriviumStreamShortint::new(
-        cipher_key,
-        iv,
-        server_key.clone(),
-        ksk.clone(),
-        hl_server_key.clone(),
-    );
-    let final_mem = memory_stats().expect("Failed to get initial memory stats");
-    let cpu_cycles: Arc<Mutex<Vec<u64>>> = Arc::new(Mutex::new(Vec::new()));
-    let cpu_cycles_clone = Arc::clone(&cpu_cycles);
-
     c.bench_function("trivium 1_1 warmup", |b| {
-        let cpu_cycles = Arc::clone(&cpu_cycles);
         b.iter(|| {
-            let start_cpuc: u64;
-            let end_cpuc: u64;
-
-            unsafe {
-                start_cpuc = _rdtsc();
-            }
-
             let cipher_key = key.map(|x| client_key.encrypt(x));
             let _trivium = TriviumStreamShortint::new(
                 cipher_key,
@@ -84,22 +58,11 @@ pub fn trivium_shortint_warmup(c: &mut Criterion) {
                 ksk.clone(),
                 hl_server_key.clone(),
             );
-
-            unsafe {
-                end_cpuc = _rdtsc();
-            }
-
-            let cycle_count = end_cpuc - start_cpuc;
-            cpu_cycles.lock().unwrap().push(cycle_count);
         })
     });
-
-    print_cpu_and_mem(cpu_cycles_clone, initial_mem, final_mem);
 }
 
 pub fn trivium_shortint_gen(c: &mut Criterion) {
-    let initial_mem = memory_stats().expect("Failed to get initial memory stats");
-
     let config = ConfigBuilder::default()
         .use_custom_parameters(V1_0_PARAM_MESSAGE_2_CARRY_2_KS_PBS_GAUSSIAN_2M128)
         .build();
@@ -142,37 +105,12 @@ pub fn trivium_shortint_gen(c: &mut Criterion) {
 
     let mut trivium = TriviumStreamShortint::new(cipher_key, iv, server_key, ksk, hl_server_key);
 
-    // once for memory benchmarking
-    trivium.next_64();
-    let final_mem = memory_stats().expect("Failed to get initial memory stats");
-    let cpu_cycles: Arc<Mutex<Vec<u64>>> = Arc::new(Mutex::new(Vec::new()));
-    let cpu_cycles_clone = Arc::clone(&cpu_cycles);
-
     c.bench_function("trivium 1_1 generate 64 bits", |b| {
-        let cpu_cycles = Arc::clone(&cpu_cycles);
-        b.iter(|| {
-            let start_cpuc: u64;
-            let end_cpuc: u64;
-
-            unsafe {
-                start_cpuc = _rdtsc();
-            }
-            trivium.next_64();
-            unsafe {
-                end_cpuc = _rdtsc();
-            }
-
-            let cycle_count = end_cpuc - start_cpuc;
-            cpu_cycles.lock().unwrap().push(cycle_count);
-        })
+        b.iter(|| trivium.next_64())
     });
-
-    print_cpu_and_mem(cpu_cycles_clone, initial_mem, final_mem);
 }
 
 pub fn trivium_shortint_trans(c: &mut Criterion) {
-    let initial_mem = memory_stats().expect("Failed to get initial memory stats");
-
     let config = ConfigBuilder::default()
         .use_custom_parameters(V1_0_PARAM_MESSAGE_2_CARRY_2_KS_PBS_GAUSSIAN_2M128)
         .build();
@@ -216,30 +154,7 @@ pub fn trivium_shortint_trans(c: &mut Criterion) {
     let ciphered_message = FheUint64::try_encrypt(0u64, &hl_client_key).unwrap();
     let mut trivium = TriviumStreamShortint::new(cipher_key, iv, server_key, ksk, hl_server_key);
 
-    // once for memory benchmarking
-    trivium.trans_encrypt_64(ciphered_message.clone());
-    let final_mem = memory_stats().expect("Failed to get initial memory stats");
-    let cpu_cycles: Arc<Mutex<Vec<u64>>> = Arc::new(Mutex::new(Vec::new()));
-    let cpu_cycles_clone = Arc::clone(&cpu_cycles);
-
     c.bench_function("trivium 1_1 transencrypt 64 bits", |b| {
-        let cpu_cycles = Arc::clone(&cpu_cycles);
-        b.iter(|| {
-            let start_cpuc: u64;
-            let end_cpuc: u64;
-
-            unsafe {
-                start_cpuc = _rdtsc();
-            }
-            trivium.trans_encrypt_64(ciphered_message.clone());
-            unsafe {
-                end_cpuc = _rdtsc();
-            }
-
-            let cycle_count = end_cpuc - start_cpuc;
-            cpu_cycles.lock().unwrap().push(cycle_count);
-        })
+        b.iter(|| trivium.trans_encrypt_64(ciphered_message.clone()))
     });
-
-    print_cpu_and_mem(cpu_cycles_clone, initial_mem, final_mem);
 }

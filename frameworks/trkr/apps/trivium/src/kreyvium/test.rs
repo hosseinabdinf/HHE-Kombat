@@ -1,4 +1,7 @@
-use crate::{KreyviumStream, KreyviumStreamByte, KreyviumStreamShortint, TransCiphering};
+use crate::{
+    benchmark, print_header, KreyviumStream, KreyviumStreamByte, KreyviumStreamShortint,
+    TransCiphering,
+};
 use tfhe::prelude::*;
 use tfhe::shortint::parameters::v1_0::{
     V1_0_PARAM_KEYSWITCH_1_1_KS_PBS_TO_2_2_KS_PBS_GAUSSIAN_2M128,
@@ -88,9 +91,18 @@ fn kreyvium_test_1() {
     let mut kreyvium = KreyviumStream::<bool>::new(key, iv);
 
     let mut vec = Vec::<bool>::with_capacity(64);
-    while vec.len() < 64 {
-        vec.push(kreyvium.next_bool());
-    }
+
+    print_header("Kreyvium SKE Test 1 <bool>");
+    // print the iv and key size in bits
+    println!("IV size: {} bits", iv.len());
+    println!("Key size: {} bits", key.len());
+    println!("Output size: {} bits", vec.capacity());
+
+    benchmark("SKE.Enc()", 100, || {
+        while vec.len() < 64 {
+            vec.push(kreyvium.next_bool());
+        }
+    });
 
     let hexadecimal = get_hexadecimal_string_from_lsb_first_stream(vec);
     assert_eq!(output, hexadecimal);
@@ -107,9 +119,18 @@ fn kreyvium_test_2() {
     let mut kreyvium = KreyviumStream::<bool>::new(key, iv);
 
     let mut vec = Vec::<bool>::with_capacity(64);
-    while vec.len() < 64 {
-        vec.push(kreyvium.next_bool());
-    }
+
+    print_header("Kreyvium SKE Test 2 <bool>");
+    // print the iv and key size in bits
+    println!("IV size: {} bits", iv.len());
+    println!("Key size: {} bits", key.len());
+    println!("Output size: {} bits", vec.capacity());
+
+    benchmark("SKE.Enc()", 100, || {
+        while vec.len() < 64 {
+            vec.push(kreyvium.next_bool());
+        }
+    });
 
     let hexadecimal = get_hexadecimal_string_from_lsb_first_stream(vec);
     assert_eq!(output, hexadecimal);
@@ -126,9 +147,17 @@ fn kreyvium_test_3() {
     let mut kreyvium = KreyviumStream::<bool>::new(key, iv);
 
     let mut vec = Vec::<bool>::with_capacity(64);
-    while vec.len() < 64 {
-        vec.push(kreyvium.next_bool());
-    }
+    print_header("Kreyvium SKE Test 3 <bool>");
+    // print the iv and key size in bits
+    println!("IV size: {} bits", iv.len());
+    println!("Key size: {} bits", key.len());
+    println!("Output size: {} bits", vec.capacity());
+
+    benchmark("SKE.Enc()", 100, || {
+        while vec.len() < 64 {
+            vec.push(kreyvium.next_bool());
+        }
+    });
 
     let hexadecimal = get_hexadecimal_string_from_lsb_first_stream(vec);
     assert_eq!(output, hexadecimal);
@@ -163,9 +192,17 @@ fn kreyvium_test_4() {
     let mut kreyvium = KreyviumStream::<bool>::new(key, iv);
 
     let mut vec = Vec::<bool>::with_capacity(64);
-    while vec.len() < 64 {
-        vec.push(kreyvium.next_bool());
-    }
+    print_header("Kreyvium SKE Test 4 <bool>");
+    // print the iv and key size in bits
+    println!("IV size: {} bits", iv.len());
+    println!("Key size: {} bits", key.len());
+    println!("Output size: {} bits", vec.capacity());
+
+    benchmark("SKE.Enc()", 100, || {
+        while vec.len() < 64 {
+            vec.push(kreyvium.next_bool());
+        }
+    });
 
     let hexadecimal = get_hexadecimal_string_from_lsb_first_stream(vec);
     assert_eq!(hexadecimal, output);
@@ -265,10 +302,23 @@ fn kreyvium_test_shortint_long() {
 
     let mut kreyvium = KreyviumStreamShortint::new(cipher_key, iv, server_key, ksk, hl_server_key);
 
-    let trans_ciphered_message = kreyvium.trans_encrypt_64(ciphered_message);
-    let ciphered_message = trans_ciphered_message.decrypt(&hl_client_key);
+    let trans_ciphered_message = kreyvium.trans_encrypt_64(ciphered_message.clone());
+    let dec_ciphered_message = trans_ciphered_message.decrypt(&hl_client_key);
 
-    let hexadecimal = get_hexagonal_string_from_u64(vec![ciphered_message]);
+    let hexadecimal = get_hexagonal_string_from_u64(vec![dec_ciphered_message]);
+
+    // do the benchmarking before assertation
+    print_header("Kreyvium Transciphering Test Short-Int");
+    // print the iv and key size in bits
+    println!("IV size: {} * 64 = {} bits", iv.len(), iv.len() * 64);
+    println!("Key size: {} * 64 = {} bits", key.len(), key.len() * 64);
+    println!("Input size: {} bits", std::mem::size_of::<u64>() * 8);
+
+    let mut test_trans_ciphered_message = ciphered_message.clone();
+    benchmark("HHE.Decomp()", 10, || {
+        test_trans_ciphered_message = kreyvium.trans_encrypt_64(ciphered_message.clone());
+    });
+
     assert_eq!(output, hexadecimal);
 }
 
@@ -370,9 +420,22 @@ fn kreyvium_test_fhe_byte_transciphering_long() {
 
     let mut kreyvium = KreyviumStreamByte::<FheUint8>::new(cipher_key, iv, &server_key);
 
-    let trans_ciphered_message = kreyvium.trans_encrypt_64(ciphered_message);
-    let ciphered_message = trans_ciphered_message.decrypt(&client_key);
+    let trans_ciphered_message = kreyvium.trans_encrypt_64(ciphered_message.clone());
+    let dec_ciphered_message = trans_ciphered_message.decrypt(&client_key);
 
-    let hexadecimal = get_hexagonal_string_from_u64(vec![ciphered_message]);
+    let hexadecimal = get_hexagonal_string_from_u64(vec![dec_ciphered_message]);
+
+    // do the benchmarking before assertation
+    print_header("Kreyvium Transciphering Test Byte");
+    // print the iv and key size in bits
+    println!("IV size: {} * 8 = {} bits", iv.len(), iv.len() * 8);
+    println!("Key size: {} * 8 = {} bits", key.len(), key.len() * 8);
+    println!("Input size: {} bits", std::mem::size_of::<u64>() * 8);
+
+    let mut test_trans_ciphered_message = ciphered_message.clone();
+    benchmark("HHE.Decomp()", 10, || {
+        test_trans_ciphered_message = kreyvium.trans_encrypt_64(ciphered_message.clone());
+    });
+
     assert_eq!(output, hexadecimal);
 }

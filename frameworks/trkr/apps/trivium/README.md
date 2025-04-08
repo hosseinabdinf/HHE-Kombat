@@ -212,3 +212,69 @@ This will work in exactly the same way as the Trivium implementation, except tha
 
 If you wish to run tests on this app, please run `cargo test -r trivium -- --test-threads=1` as multithreading provokes interferences between several running 
 Triviums at the same time.
+
+
+# Bencmarking (new)
+To benchmark both of the ciphers you can use the following commands.
+
+## Benchmark Kreyvium 
+
+### Bencmarking the SKE
+1. To benchmark Kreyvium symmetric key encryption, you can use the following command, where you can replace the test number X by {1,2,3,4}:
+
+```
+cargo test --release --package tfhe-trivium --lib -- kreyvium::test::kreyvium_test_X --exact --show-output
+```
+
+for example:
+
+```
+cargo test --release --package tfhe-trivium --lib -- kreyvium::test::kreyvium_test_1 --exact --show-output
+```
+
+### Benchmarking Transciphering
+
+
+1. To benchmark the short integer version, you can use the following command:
+
+```
+cargo test --release --package tfhe-trivium --lib -- kreyvium::test::kreyvium_test_shortint_long --exact --show-output
+```
+
+2. To bencmark the byte version, you can use the following command:
+
+ ```
+cargo test --release --package tfhe-trivium --lib -- kreyvium::test::kreyvium_test_fhe_byte_transciphering_long --exact --show-output
+ ```
+
+## Benchmark Trivium 
+
+### Bencmarking the SKE
+1. To benchmark trivium symmetric key encryption, you can use the following command, where you can replace the test number X by {1,2,3, and 4(very long one)}:
+
+```
+cargo test --release --package tfhe-trivium --lib -- trivium::test::trivium_test_X --exact --show-output
+```
+
+for example:
+
+```
+cargo test --release --package tfhe-trivium --lib -- trivium::test::trivium_test_1 --exact --show-output
+```
+
+### Benchmarking Transciphering
+
+
+1. To benchmark the short integer version, you can use the following command:
+
+```
+cargo test --release --package tfhe-trivium --lib -- trivium::test::trivium_test_shortint_long --exact --show-output
+```
+
+2. To bencmark the byte version, you can use the following command:
+
+ ```
+cargo test --release --package tfhe-trivium --lib -- trivium::test::trivium_test_fhe_byte_transciphering_long --exact --show-output
+ ```
+
+

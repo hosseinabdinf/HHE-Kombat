@@ -9,7 +9,8 @@ mod trivium;
 pub use trivium::{TriviumStream, TriviumStreamByte, TriviumStreamShortint};
 
 mod trans_ciphering;
-mod cpu_cycle;
-pub use cpu_cycle::{print_cpu_and_mem};
+
+mod utils;
+pub use utils::{benchmark, print_header, print_message, print_status};
 
 pub use trans_ciphering::TransCiphering;
