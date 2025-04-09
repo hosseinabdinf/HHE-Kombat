@@ -14,7 +14,7 @@ We implement:
 
 
 
-# Benchmarking
+# Benchmarking (new)
 
 To execute the benchmarks, use the following commands:
 
