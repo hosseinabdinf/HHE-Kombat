@@ -12,8 +12,8 @@ using namespace std;
 
 void KeyGen::get_sk_boot(SKey_boot& sk_boot)
 {
-    cout << "Started generating the secret key of the bootstrapping scheme" << endl;
-    clock_t start = clock();
+    // cout << "Started generating the secret key of the bootstrapping scheme" << endl;
+    // clock_t start = clock();
     sk_boot.sk = ModQPoly(Param::N,0);
     sk_boot.sk_inv = ModQPoly(Param::N,0);
 
@@ -21,45 +21,45 @@ void KeyGen::get_sk_boot(SKey_boot& sk_boot)
         sampler.get_invertible_vector(sk_boot.sk, sk_boot.sk_inv, Param::t, 1L);
     else
         sampler.get_invertible_vector(sk_boot.sk, sk_boot.sk_inv, Param::p, 1L);
-    cout << "Generation time of the secret key of the bootstrapping scheme: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    // cout << "Generation time of the secret key of the bootstrapping scheme: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 }
 
 void KeyGen::get_sk_base(SKey_base_NTRU& sk_base)
 {
-    cout << "Started generating the secret key of the base scheme" << endl;
-    clock_t start = clock();
+    // cout << "Started generating the secret key of the base scheme" << endl;
+    // clock_t start = clock();
     sk_base.sk = ModQMatrix(param.n, vector<int>(param.n,0L));
     sk_base.sk_inv = ModQMatrix(param.n, vector<int>(param.n,0L));
 
     sampler.get_invertible_matrix(sk_base.sk, sk_base.sk_inv, 1L, 0L);
-    cout << "Generation time of the secret key of the base scheme: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    // cout << "Generation time of the secret key of the base scheme: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 }
 
 void KeyGen::get_sk_base(SKey_base_LWE& sk_base)
 {
-    cout << "Started generating the secret key of the base scheme" << endl;
-    clock_t start = clock();
+    // cout << "Started generating the secret key of the base scheme" << endl;
+    // clock_t start = clock();
     sk_base.clear();
     sk_base = vector<int>(param.n,0L);
 
     sampler.get_binary_vector(sk_base);
-    cout << "Generation time of the secret key of the base scheme: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    // cout << "Generation time of the secret key of the base scheme: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 }
 
 void KeyGen::get_ksk(KSKey_NTRU& ksk, const SKey_base_NTRU& sk_base, const SKey_boot& sk_boot)
 {
-    //cout << "Started key-switching key generation" << endl;
-    clock_t start = clock();
+    //// cout << "Started key-switching key generation" << endl;
+    // clock_t start = clock();
     // reset key-switching key
     ksk.clear();
     ksk = ModQMatrix(param.Nl, vector<int>(param.n,0));
     vector<vector<long>> ksk_long(param.Nl, vector<long>(param.n,0L));
-    //cout << "Reset time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    //// cout << "Reset time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 
     // noise matrix G as in the paper
     ModQMatrix G(param.Nl, vector<int>(param.n,0L));
     sampler.get_ternary_matrix(G);
-    //cout << "G gen time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    //// cout << "G gen time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
     
     // matrix G + P * Phi(f) * E as in the paper
     int coef_w_pwr = sk_boot.sk[0];
@@ -77,7 +77,7 @@ void KeyGen::get_ksk(KSKey_NTRU& ksk, const SKey_base_NTRU& sk_base, const SKey_
             coef_w_pwr *= Param::B_ksk;
         }
     }
-    //cout << "G+P time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    //// cout << "G+P time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 
     // parameters of the block optimization of matrix multiplication
     int block = 4;
@@ -86,13 +86,13 @@ void KeyGen::get_ksk(KSKey_NTRU& ksk, const SKey_base_NTRU& sk_base, const SKey_
     // (G + P * Phi(f) * E) * F^(-1) as in the paper
     for (int i = 0; i < param.Nl; i++)
     {
-        //cout << "i: " << i << endl;
+        //// cout << "i: " << i << endl;
         vector<long>& k_row = ksk_long[i];
         vector<int>& g_row = G[i];
         for (int k = 0; k < param.n; k++)
         {
             const vector<int>& f_row = sk_base.sk_inv[k];
-            //cout << "j: " << j << endl;
+            //// cout << "j: " << j << endl;
             long coef = long(g_row[k]);
             for (int j = 0; j < blocks; j+=block)
             {
@@ -105,18 +105,18 @@ void KeyGen::get_ksk(KSKey_NTRU& ksk, const SKey_base_NTRU& sk_base, const SKey_
                 k_row[blocks+j] += (coef * f_row[blocks+j]);
         }
     }
-    //cout << "After K time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    //// cout << "After K time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 
     // reduce modulo q_base
     for (int i = 0; i < param.Nl; i++)
         param.mod_q_base(ksk[i], ksk_long[i]);
-    cout << "KSKey-gen time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    // cout << "KSKey-gen time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 }
 
 void KeyGen::get_ksk(KSKey_LWE& ksk, const SKey_base_LWE& sk_base, const SKey_boot& sk_boot)
 {
-    //cout << "Started key-switching key generation" << endl;
-    clock_t start = clock();
+    //// cout << "Started key-switching key generation" << endl;
+    // clock_t start = clock();
     // reset key-switching key
     ksk.A.clear();
     ksk.b.clear();
@@ -126,11 +126,11 @@ void KeyGen::get_ksk(KSKey_LWE& ksk, const SKey_base_LWE& sk_base, const SKey_bo
         ksk.A.push_back(row);
     }
     ksk.b = vector<int>(param.Nl, 0L);
-    //cout << "Reset time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    //// cout << "Reset time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 
     // noise matrix G as in the paper
     sampler.get_uniform_matrix(ksk.A);
-    //cout << "A gen time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    //// cout << "A gen time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
     
     // matrix P * f_0 as in the paper
     vector<int> Pf0(param.Nl, 0L);
@@ -149,25 +149,25 @@ void KeyGen::get_ksk(KSKey_LWE& ksk, const SKey_base_LWE& sk_base, const SKey_bo
             coef_w_pwr *= Param::B_ksk;
         }
     }
-    //cout << "Pf0 time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    //// cout << "Pf0 time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 
     // A*s_base + e + Pf0 as in the paper
     normal_distribution<double> gaussian_sampler(0.0, Param::e_st_dev);
     for (int i = 0; i < param.Nl; i++)
     {
-        //cout << "i: " << i << endl;
+        //// cout << "i: " << i << endl;
         vector<int>& k_row = ksk.A[i];
         for (int k = 0; k < param.n; k++)
             ksk.b[i] -= k_row[k] * sk_base[k];
         ksk.b[i] += (Pf0[i] + static_cast<int>(round(gaussian_sampler(rand_engine))));
         param.mod_q_base(ksk.b[i]);
     }   
-    cout << "KSKey-gen time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    // cout << "KSKey-gen time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 }
 
 void KeyGen::get_bsk(BSKey_NTRU& bsk, const SKey_base_NTRU& sk_base, const SKey_boot& sk_boot)
 {
-    clock_t start = clock();
+    // clock_t start = clock();
     
     // index of a secret key coefficient of the base scheme
     int coef_counter = 0;
@@ -209,12 +209,12 @@ void KeyGen::get_bsk(BSKey_NTRU& bsk, const SKey_base_NTRU& sk_base, const SKey_
         coef_counter += param.bsk_partition[iBase];
     }    
 
-    cout << "Bootstrapping key generation: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    // cout << "Bootstrapping key generation: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 }
 
 void KeyGen::get_bsk(BSKey_LWE& bsk, const SKey_base_LWE& sk_base, const SKey_boot& sk_boot)
 {
-    clock_t start = clock();
+    // clock_t start = clock();
     
     // index of a secret key coefficient of the base scheme
     int coef_counter = 0;
@@ -242,12 +242,12 @@ void KeyGen::get_bsk(BSKey_LWE& bsk, const SKey_base_LWE& sk_base, const SKey_bo
         coef_counter += param.bsk_partition[iBase];
     }    
 
-    cout << "Bootstrapping key generation: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    // cout << "Bootstrapping key generation: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 }
 
 void KeyGen::get_bsk2(BSKey_LWE& bsk, const SKey_base_LWE& sk_base, const SKey_boot& sk_boot)
 {
-    clock_t start = clock();
+    // clock_t start = clock();
     
     // index of a secret key coefficient of the base scheme
     int coef_counter = 0;
@@ -282,7 +282,7 @@ void KeyGen::get_bsk2(BSKey_LWE& bsk, const SKey_base_LWE& sk_base, const SKey_b
         coef_counter += param.bsk_partition[iBase];
     }    
 
-    cout << "Bootstrapping2 generation: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    // cout << "Bootstrapping2 generation: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 }
 
 void enc_ngs(NGSFFTctxt& ct, int m, int l, int B, const SKey_boot& sk_boot)

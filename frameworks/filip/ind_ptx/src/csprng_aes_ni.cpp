@@ -73,7 +73,7 @@ void CSPRNG::generate_random_bytes(int iv, int _nbytes){
     int nblocks = ceil(_nbytes / 16.0); // each AES-128 block has 16 bytes
 
 
-	std::cout << "# AES blocks: " << nblocks << std::endl;
+	// std::cout << "# AES blocks: " << nblocks << std::endl;
 
     _nbytes = nblocks * 16; // always generate multiple of 16 to be compatible with AES
 

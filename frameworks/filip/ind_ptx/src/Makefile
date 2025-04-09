@@ -1,5 +1,5 @@
 CCX = g++
-CCXFLAGS = -O3 -funroll-loops -march=native -std=c++11 -pthread -I. -I./include_final
+CCXFLAGS = -O3 -funroll-loops -march=native -std=c++11 -pthread -I. -I./include_final -I./bench_utils
 DEPS = -lntl -lgmp -lfftw3 -lm
 DIR = run
 AES_SRC_DIR = tiny-aes
@@ -59,8 +59,14 @@ filip.o: filip.h filip.cpp utils.o | $(DIR)
 utils.o: utils.h utils.cpp | $(DIR)
 	$(CCX) $(CCXFLAGS) -c utils.cpp -o $(DIR)/utils.o
 
+bench_utils.o: bench_utils/bench_utils.c bench_utils/bench_utils.h | $(DIR)
+	$(CCX) $(CCXFLAGS) -c bench_utils/bench_utils.c -o $(DIR)/bench_utils.o
+
+bench_printer.o: bench_utils/bench_printer.cpp bench_utils/bench_printer.h | $(DIR)
+	$(CCX) $(CCXFLAGS) -c bench_utils/bench_printer.cpp -o $(DIR)/bench_printer.o
+
 homomorphic_filip_mod_p.o: homomorphic_filip_mod_p.h homomorphic_filip_mod_p.cpp | $(DIR)
 	$(CCX) $(CCXFLAGS) -c homomorphic_filip_mod_p.cpp -o $(DIR)/homomorphic_filip_mod_p.o
 
-test_homomorphic_filip_mod_p: homomorphic_filip_mod_p.o test_homomorphic_filip_mod_p.cpp filip.o utils.o csprng.o | $(DIR)
-	$(CCX) $(CCXFLAGS) -o $(DIR)/test_homomorphic_filip_mod_p test_homomorphic_filip_mod_p.cpp $(DIR)/homomorphic_filip_mod_p.o $(DIR)/filip.o $(DIR)/utils.o $(DIR)/csprng.o $(AES_BUILD_DIR)/aes.o $(DIR)/libfinal.a $(DEPS)
+test_homomorphic_filip_mod_p: homomorphic_filip_mod_p.o test_homomorphic_filip_mod_p.cpp filip.o utils.o bench_utils.o bench_printer.o csprng.o | $(DIR)
+	$(CCX) $(CCXFLAGS) -o $(DIR)/test_homomorphic_filip_mod_p test_homomorphic_filip_mod_p.cpp $(DIR)/homomorphic_filip_mod_p.o $(DIR)/filip.o $(DIR)/utils.o $(DIR)/bench_utils.o $(DIR)/bench_printer.o $(DIR)/csprng.o $(AES_BUILD_DIR)/aes.o $(DIR)/libfinal.a $(DEPS)

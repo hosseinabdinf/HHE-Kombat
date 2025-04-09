@@ -27,7 +27,7 @@ So, if you want to use them, you can simply run
 
 `./install_third_party_libs.sh`
 
-## Running our transciphering
+## Running our transciphering 
 
 Firstly, notice that we use AES to implement a CSPRNG and we have two options for this: a third-party lib called tiny-AES (general, but not very fast) 
 and an implementation using AES-NI, which is way faster, but not compatible with all processors. Thus, you have to check if your processor supports AES-NI.
@@ -38,10 +38,18 @@ After that, just run make to compile. That is,
 - `. switch_aes_lib`
 - `make`
 
-This will generate binaries to test our version of FINAL, some auxiliary functions, and the transciphering itself. You
-can run each of those binaries with the following commands
+<!-- This will generate binaries to test our version of FINAL, some auxiliary functions, and the transciphering itself. You
+can run each of those binaries with the following commands -->
 
-- `./test_final`
+<!-- - `./test_final`
 - `./test_final_mod_p`
-- `./test_homomorphic_filip_mod_p`
+- `./test_homomorphic_filip_mod_p` -->
 
+# Benchmarking (new)
+We made changes to the original code, now for benchmarking you should follow this after `make`:  
+
+- `./run/test_final`
+- `./run/test_final_mod_p`
+- `./run/test_homomorphic_filip_mod_p`
+
+You can uncomment `#define SKE_BENCH_ONLY` in `test_homomorphic_filip_mod_p.cpp` to benchmark only the SKE part for more accurate results. Additionally, you can modify the number of benchmarking iterations by adjusting `BENCHMARK_ITERATIONS` in the same file.
