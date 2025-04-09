@@ -18,3 +18,13 @@ As Hippogryph requires som new cryptographic primitives not implemented in the o
 
 
 If any questions, contact the authors of the papers.
+
+
+# Benchmarking (new)
+To run benchmarking you can use the following commands:
+
+```
+cd hippogriph
+cargo build --release
+cargo run --release
+```
