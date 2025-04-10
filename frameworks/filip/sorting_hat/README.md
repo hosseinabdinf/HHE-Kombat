@@ -31,37 +31,18 @@ So, if you want to use them, you can simply run
 
 `./install_third_party_libs.sh`
 
-## Running our PDTE
+<!-- ## Running our PDTE with transciphering
 
-- `cd src/rust_pdte` 
-- Run tests: `RUSTFLAGS="-C target-cpu=native" cargo test --release`
-- Run micro benchmark: `RUSTFLAGS="-C target-cpu=native" cargo bench`
+- `cd src/cpp_pdte_transciphering`
+- `make`
+- `cd run`
+- `./test_filip`
+- `./test_homomorphic_filip`
+- `./test_pdte_transciphering` -->
 
-### Using the CLI
 
-The CLI can be build using 
-`RUSTFLAGS="-C target-cpu=native" cargo build --release`.
-`cargo` usually puts the executable in `target/release/homdte`.
-
-Without any command line arguments, the CLI will simulate decision tree evaluation
-using complete binary trees of various depths.
-When given a command line argument of a data directory such as `data/heart` or `data/spam`,
-the CLI will evaluation a real model
-trained using the training script located in `script/train.py`.
-Some models are included in the `data` directory.
-The detailed options are available from `./homdte --help`.
-
-For convenience, a script is given under `script/run_all_datasets.sh`
-to run private decision tree evaluation on all datasets.
-
-### Optional
-
-A script exists under `script/train.py` which perform the training
-using [Concrete ML](https://github.com/zama-ai/concrete-ml) version 0.2.0.
-This is only necessary if new models need to be trained.
-Running the script is not necessary to use the CLI (described above).
-
-## Running our PDTE with transciphering
+# Benchmarking (new)
+We made changes to the original code, now for benchmarking you should follow this after `make`:  
 
 - `cd src/cpp_pdte_transciphering`
 - `make`
@@ -69,3 +50,6 @@ Running the script is not necessary to use the CLI (described above).
 - `./test_filip`
 - `./test_homomorphic_filip`
 - `./test_pdte_transciphering`
+
+WE ONLY APPLIED THE BENCHMARKING ON `test_homomorphic_filip.cpp`, so you might only run that test.
+You can modify the number of benchmarking iterations by adjusting `BENCHMARK_ITERATIONS` in the same file.

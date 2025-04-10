@@ -59,11 +59,13 @@ filip.o: filip.h filip.cpp utils.o | $(DIR)
 utils.o: utils.h utils.cpp | $(DIR)
 	$(CCX) $(CCXFLAGS) -c utils.cpp -o $(DIR)/utils.o
 
+# Benchmarking library
 bench_utils.o: bench_utils/bench_utils.c bench_utils/bench_utils.h | $(DIR)
 	$(CCX) $(CCXFLAGS) -c bench_utils/bench_utils.c -o $(DIR)/bench_utils.o
 
 bench_printer.o: bench_utils/bench_printer.cpp bench_utils/bench_printer.h | $(DIR)
 	$(CCX) $(CCXFLAGS) -c bench_utils/bench_printer.cpp -o $(DIR)/bench_printer.o
+# End of the benchmarking library
 
 homomorphic_filip_mod_p.o: homomorphic_filip_mod_p.h homomorphic_filip_mod_p.cpp | $(DIR)
 	$(CCX) $(CCXFLAGS) -c homomorphic_filip_mod_p.cpp -o $(DIR)/homomorphic_filip_mod_p.o

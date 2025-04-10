@@ -292,7 +292,7 @@ int main() {
 
   //	test_global_setup(s_lwe, true);
   //	test_p_dependent_setup(s_lwe, true);
-  test_simulate_homomorphic_filip_dec(s_lwe, false);
+  test_simulate_homomorphic_filip_dec(s_lwe, true);
 
   return 0;
 }
