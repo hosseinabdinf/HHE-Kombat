@@ -1,6 +1,15 @@
 # FiLIP
 This is a Rust implementation of the FiLIP stream-cipher, a description of which is available at https://ia.cr/2019/483. 
 
+# !! Important Notice !!
+While attempting to build and run the FiLIP code following the instructions below, we encountered the following error:
+
+```
+Unable to update ssh://git@github.com/zama-ai/concrete?branch=FiLIP
+```
+
+We have reached out to the authors for assistance but have not received a response as of now. Therefore, we are retaining this version as a Rust reference implementation of FiLIP for archival purposes.
+
 ## Prerequisite
 
 To use filip, you will need the Rust compiler, and the FFTW library. The compiler can be
