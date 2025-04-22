@@ -30,3 +30,7 @@ pub use frast_he_parm::*;
 
 pub const MODULUS: usize = 16;
 pub const MODULUS_BIT: usize = 4;
+
+// for benchmarking
+pub mod butils;
+pub use butils::{benchmark, print_header, print_message, print_status};

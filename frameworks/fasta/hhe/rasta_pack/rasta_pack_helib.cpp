@@ -7,16 +7,18 @@
 #include <NTL/BasicThreadPool.h>
 #include <helib/helib.h>
 #include <helib/matmul.h>
-#include <iostream>
 #include <stdlib.h>
+
+#include <iostream>
 
 using namespace std;
 using namespace NTL;
 using namespace helib;
 
+#include <x86intrin.h>
+
 #include "matrixFromFile.h"
 #include "utils.h"
-#include <x86intrin.h>
 
 // double timeChi = 0, timeLinLayer = 0;
 vector<MatMulFullExec> MAT;
@@ -143,8 +145,7 @@ int main(int argc, char *argv[]) {
   Ptxt<BGV> ptxt(context);
   cout << "-> Ptx size:" << ptxt.size() << endl;
   // Fill them with random bits
-  for (i = 0; i < ptxt.size(); ++i)
-    ptxt[i] = (long)random() % 2;
+  for (i = 0; i < ptxt.size(); ++i) ptxt[i] = (long)random() % 2;
 
   // cout<<"ptxt = "<<ptxt<<endl<<endl;
   // Create a ciphertext object

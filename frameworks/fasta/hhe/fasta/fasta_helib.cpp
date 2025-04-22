@@ -5,15 +5,17 @@
 */
 
 #include <gmp.h>
-#include <iostream>
 #include <stdlib.h>
+
+#include <iostream>
 using namespace std;
 
 #include <helib/helib.h>
 using namespace helib;
 
-#include "utils.h"
 #include <x86intrin.h>
+
+#include "utils.h"
 
 // arrays for the rotation amounts.  Updated for every linear transformation.
 int R1[4], R2[4], R3[4], ii[4], jj[4], kk[4];
@@ -58,23 +60,17 @@ void printRotationAmounts() {
   /* Prints the current rotation amounts. */
   int i;
 
-  for (i = 0; i < 4; ++i)
-    printf("%d ", R1[i]);
+  for (i = 0; i < 4; ++i) printf("%d ", R1[i]);
   printf("|");
-  for (i = 0; i < 4; ++i)
-    printf("%d ", R2[i]);
+  for (i = 0; i < 4; ++i) printf("%d ", R2[i]);
   printf("|");
-  for (i = 0; i < 4; ++i)
-    printf("%d ", R3[i]);
+  for (i = 0; i < 4; ++i) printf("%d ", R3[i]);
   printf("|");
-  for (i = 0; i < 4; ++i)
-    printf("%d ", ii[i]);
+  for (i = 0; i < 4; ++i) printf("%d ", ii[i]);
   printf("|");
-  for (i = 0; i < 4; ++i)
-    printf("%2d ", jj[i]);
+  for (i = 0; i < 4; ++i) printf("%2d ", jj[i]);
   printf("|");
-  for (i = 0; i < 4; ++i)
-    printf("%2d ", kk[i]);
+  for (i = 0; i < 4; ++i) printf("%2d ", kk[i]);
   printf("|\n");
 }
 
@@ -108,8 +104,7 @@ vector<Ctxt> Iteration(vector<Ctxt> input, int iterationNumber) {
   vector<Ctxt> out;
   int i;
 
-  for (i = 1; i < 5; ++i)
-    ThetaBlock += input[i];
+  for (i = 1; i < 5; ++i) ThetaBlock += input[i];
   // ThetaBlock=i0+i1+i2+i3+i4
 
   Ctxt rotR1(ThetaBlock);
@@ -147,18 +142,15 @@ vector<Ctxt> LinearTransformation(vector<Ctxt> input) {
   const EncryptedArray &ea = tmp.getContext().getEA();
 
   out = Iteration(input, 0);
-  for (w = 0; w < 4; ++w)
-    ea.rotate(out[w + 1], ii[w]);
+  for (w = 0; w < 4; ++w) ea.rotate(out[w + 1], ii[w]);
   // first iteration done
 
   out = Iteration(out, 1);
-  for (w = 0; w < 4; ++w)
-    ea.rotate(out[w + 1], jj[w]);
+  for (w = 0; w < 4; ++w) ea.rotate(out[w + 1], jj[w]);
   // second iteration done
 
   out = Iteration(out, 2);
-  for (w = 0; w < 4; ++w)
-    ea.rotate(out[w + 1], kk[w]);
+  for (w = 0; w < 4; ++w) ea.rotate(out[w + 1], kk[w]);
   // third iteration done
 
   out = Iteration(out, 3);
@@ -285,8 +277,7 @@ int main(int argc, char *argv[]) {
   for (j = 0; j < 5; ++j) {
     Ptxt<BGV> tmp(context);
     ptxt.push_back(tmp);
-    for (i = 0; i < ptxt[j].size(); ++i)
-      ptxt[j][i] = (long)random() % 2;
+    for (i = 0; i < ptxt[j].size(); ++i) ptxt[j][i] = (long)random() % 2;
   }
 
   cout << "-> Ptx Size: " << ptxt[0].size() << endl;

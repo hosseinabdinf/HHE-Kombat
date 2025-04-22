@@ -30,3 +30,18 @@ cargo bench --bench `bench_name`
 ## Error Analysis
 The error anlaysis of the frast evaluation is given in [err.sage](./err.sage).
 The failure probability of the FRAST evaluation is given by 2^-80.32.
+
+
+
+# HHEKombat Benchmarking (new)
+To run the benchmarking you can execute the following commands:
+
+## Single-thread
+```bash
+cargo test --release --test frast  
+```
+
+## Mutli-thread
+```bash
+cargo test --release --test frast --features multithread 
+```

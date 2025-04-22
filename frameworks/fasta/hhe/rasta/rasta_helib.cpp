@@ -2,20 +2,21 @@
  * size might be varied, and constant and key additions are not implemented.  */
 
 #include <NTL/BasicThreadPool.h>
-#include <ctime>
 #include <helib/helib.h>
 #include <helib/matmul.h>
-#include <iostream>
 #include <stdlib.h>
+
+#include <ctime>
+#include <iostream>
 
 using namespace std;
 using namespace NTL;
 using namespace helib;
 
-#include "matrixFromFile.h"
-
-#include "utils.h"
 #include <x86intrin.h>
+
+#include "matrixFromFile.h"
+#include "utils.h"
 
 // double timeChi = 0, timeLinLayer = 0;
 int BLOCK_SIZE = 351;
@@ -35,8 +36,7 @@ void fillMlist(int n_rounds) {
     Mlist[m] = (int **)malloc(BLOCK_SIZE * sizeof(int *));
     for (i = 0; i < BLOCK_SIZE; ++i) {
       Mlist[m][i] = (int *)malloc(BLOCK_SIZE * sizeof(int));
-      for (j = 0; j < BLOCK_SIZE; ++j)
-        fscanf(fp, "%d", Mlist[m][i] + j);
+      for (j = 0; j < BLOCK_SIZE; ++j) fscanf(fp, "%d", Mlist[m][i] + j);
     }
     fclose(fp);
   }
@@ -72,8 +72,7 @@ vector<Ctxt> matrixMultiplicationPlain(vector<Ctxt> input, int **M,
 
   for (j = 0; j < BLOCK_SIZE; ++j) {
     for (i = 0; i < BLOCK_SIZE; ++i) {
-      if (M[i][j] != 0)
-        output[j] += input[i];
+      if (M[i][j] != 0) output[j] += input[i];
     }
   }
 
@@ -88,7 +87,7 @@ vector<Ctxt> matrixMultiplicationM4R(vector<Ctxt> input, int **M,
   vector<Ctxt> output;
 
   // Create lookup-tables
-  nTables = BLOCK_SIZE / t; // will be 70 when BLOCKSIZE=351 and t=5
+  nTables = BLOCK_SIZE / t;  // will be 70 when BLOCKSIZE=351 and t=5
   tableSize = 1 << t;
   vector<vector<Ctxt>> ciphertextTable;
   // printf("Ready to build tables\n");
@@ -100,16 +99,16 @@ vector<Ctxt> matrixMultiplicationM4R(vector<Ctxt> input, int **M,
     }
     // ciphertextTable[i] initialized
     for (tableIndex = 1; tableIndex < tableSize;
-         ++tableIndex) { // nothing to add when tableIndex is 0
+         ++tableIndex) {  // nothing to add when tableIndex is 0
       for (p = 0; p < t; ++p) {
-        if ((1 << p) & tableIndex) // must add ciphertext p of input block i
-                                   // onto current table index
+        if ((1 << p) & tableIndex)  // must add ciphertext p of input block i
+                                    // onto current table index
           tab[tableIndex] += input[t * i + p];
       }
     }
     ciphertextTable.push_back(tab);
     // ciphertextTable[i] initialized
-  } // all look-up tables initialized
+  }  // all look-up tables initialized
   // printf("tables built\n");
 
   for (i = 0; i < BLOCK_SIZE; ++i) {
@@ -120,21 +119,18 @@ vector<Ctxt> matrixMultiplicationM4R(vector<Ctxt> input, int **M,
 
   // Do the actual multiplication
   rest = BLOCK_SIZE % t;
-  for (j = 0; j < BLOCK_SIZE; ++j) { // for every column...
-    for (i = 0; i < nTables; ++i) {  //...look up every block of t rows
+  for (j = 0; j < BLOCK_SIZE; ++j) {  // for every column...
+    for (i = 0; i < nTables; ++i) {   //...look up every block of t rows
       tableIndex = 0;
       for (p = 0; p < t; ++p) {
-        if (M[(t * i) + p][j] != 0)
-          tableIndex ^= (1 << p);
-      } // tableIndex indicates the element to add to output
-      if (tableIndex != 0)
-        output[j] += ciphertextTable[i][tableIndex];
+        if (M[(t * i) + p][j] != 0) tableIndex ^= (1 << p);
+      }  // tableIndex indicates the element to add to output
+      if (tableIndex != 0) output[j] += ciphertextTable[i][tableIndex];
     }
     // adding the last BLOCK_SIZE mod t elements of input
     for (p = BLOCK_SIZE - rest; p < BLOCK_SIZE; ++p) {
-      if (M[p][j] != 0)
-        output[j] += input[p];
-    } // column j fully processed
+      if (M[p][j] != 0) output[j] += input[p];
+    }  // column j fully processed
   }
 
   return output;
@@ -254,7 +250,7 @@ int main(int argc, char *argv[]) {
   // Get the EncryptedArray of the context
   const EncryptedArray &ea = context.getEA();
   // Get the number of slots (phi(m))
-  long nslots = ea.size(); // Bit-sliced, don't care about slots
+  long nslots = ea.size();  // Bit-sliced, don't care about slots
   cout << "Number of slots: " << nslots << endl;
 
   PrintHeader("Reading random matrices");
@@ -286,7 +282,7 @@ int main(int argc, char *argv[]) {
 
   Ptxt<BGV> ptxt(context);
   ptxt[0] = 0;
-  Ctxt ZeroCtxt(public_key); // used for initialization of tables in M4R
+  Ctxt ZeroCtxt(public_key);  // used for initialization of tables in M4R
   public_key.Encrypt(ZeroCtxt, ptxt);
 
   /* Homomorphic evaluation of Rasta */
