@@ -5,6 +5,8 @@
 from sage.all import *
 from hashlib import shake_128
 
+#  for benchmarking
+from benchmark_utils import *
 
 
 def key_gen(master_key, k, w, IV = b""):
@@ -164,13 +166,24 @@ class Transistor:
         return self.whiten(fsm_outputs)
 
         
+def get_list_bit_size(data_list):
+    total_bytes = 0
+    for item in data_list:
+        total_bytes += sys.getsizeof(item)
+    return total_bytes * 8
 
 # !SECTION!  Basic tests
 
 if __name__ == "__main__":
+    print_header("Transistor Cipher")
     T = Transistor()
     T.set_key(b"0123456789abcdef", IV=b"")
-    for i in range(0, 10):
-        print(T.clock())
+    
+    ks = T.clock()
+    print_message(f"Keystream: {ks}")
+    print_message(f"#Elements:{len(ks)}, Keystream size: {len(ks)*4} bit")
+    print_header("Symmetric Transistor")
+        
+    benchmark("Sym.Enc()",100, T.clock)
 
 

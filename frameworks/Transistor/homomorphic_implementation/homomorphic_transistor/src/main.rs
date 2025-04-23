@@ -2,12 +2,15 @@ use std::time::Instant;
 
 use lfsr::LFSR;
 use parameters::{TRANSISTOR_ODD_PARAMETERS, TRANSISTOR_ODD_PARAMETERS_128};
-use tfhe::gadget::prelude::*;
 use shake::shake_keygen;
+use tfhe::gadget::prelude::*;
 
 pub mod lfsr;
 pub mod parameters;
 pub mod shake;
+
+mod utils;
+pub use utils::{benchmark, print_header, print_message, print_status};
 
 struct Transistor {
     a: usize,
@@ -54,9 +57,6 @@ impl Transistor {
         }
     }
 
-
-
-
     pub fn initialize(&mut self, seed_whitening: &Vec<u64>, seed_ks: &Vec<u64>, ck: &ClientKey) {
         self.whitening_lsfr.encrypt_and_seed(seed_whitening, ck);
         self.pseudo_ks_lsfr.encrypt_and_seed(seed_ks, ck);
@@ -70,8 +70,7 @@ impl Transistor {
         self.state.iter().map(|row| row[j].clone()).collect()
     }
 
-
-    fn pretty_print(&self, ck_debug : &ClientKey){
+    fn pretty_print(&self, ck_debug: &ClientKey) {
         self.state.iter().for_each(|row| {
             print!("| ");
             row.iter().for_each(|x| print!("{} |", ck_debug.decrypt(x)));
@@ -79,20 +78,19 @@ impl Transistor {
         });
         println!("______________________");
     }
-
 }
 
-
-
 impl Transistor {
-    pub fn sub_bytes(&mut self, sk: &ServerKey, client_key_debug : &ClientKey) {
+    pub fn sub_bytes(&mut self, sk: &ServerKey, client_key_debug: &ClientKey) {
         self.state = self
             .state
             .iter()
             .map(|row| {
                 row.iter()
                     .map(|x| {
-                        sk.apply_lut(x, &Encoding::new_trivial(self.p), &|x| {self.s_box[x as usize]})
+                        sk.apply_lut(x, &Encoding::new_trivial(self.p), &|x| {
+                            self.s_box[x as usize]
+                        })
                     })
                     .collect()
             })
@@ -111,28 +109,23 @@ impl Transistor {
             .map(|i_row| {
                 (0..self.a)
                     .map(|i_col| {
-                        sk.linear_combination(
-                            &self.get_col(i_col),
-                            &self.matrix_mc[i_row],
-                            self.p,
-                        )
+                        sk.linear_combination(&self.get_col(i_col), &self.matrix_mc[i_row], self.p)
                     })
                     .collect()
             })
             .collect();
     }
 
-    pub fn add_round_key(&mut self, sk: &ServerKey, ck_debug : &ClientKey) {
-        self
-            .state
-            .iter_mut()
-            .for_each(|row_state| {
-                row_state
-                    .iter_mut()
-                    .for_each(|x| *x = sk.simple_sum(&vec![x.clone(), self.pseudo_ks_lsfr.silent_clock(&sk, &ck_debug)]))
+    pub fn add_round_key(&mut self, sk: &ServerKey, ck_debug: &ClientKey) {
+        self.state.iter_mut().for_each(|row_state| {
+            row_state.iter_mut().for_each(|x| {
+                *x = sk.simple_sum(&vec![
+                    x.clone(),
+                    self.pseudo_ks_lsfr.silent_clock(&sk, &ck_debug),
+                ])
             })
+        })
     }
-
 
     pub fn filter_output(&self) -> Vec<Ciphertext> {
         let mut output = vec![];
@@ -150,17 +143,22 @@ impl Transistor {
         output
     }
 
-
-    pub fn white_output(&mut self, input : Vec<Ciphertext>, sk : &ServerKey, ck_debug : &ClientKey) -> Vec<Ciphertext>{
-        input.into_iter().map(|x| sk.simple_sum(&vec![x, self.whitening_lsfr.silent_clock(&sk, &ck_debug)])).collect()
+    pub fn white_output(
+        &mut self,
+        input: Vec<Ciphertext>,
+        sk: &ServerKey,
+        ck_debug: &ClientKey,
+    ) -> Vec<Ciphertext> {
+        input
+            .into_iter()
+            .map(|x| sk.simple_sum(&vec![x, self.whitening_lsfr.silent_clock(&sk, &ck_debug)]))
+            .collect()
     }
 
-
-    pub fn clock(&mut self, sk: &ServerKey, ck_debug : &ClientKey) -> Vec<Ciphertext> {
-        
+    pub fn clock(&mut self, sk: &ServerKey, ck_debug: &ClientKey) -> Vec<Ciphertext> {
         // add round key
         self.add_round_key(&sk, &ck_debug);
- 
+
         // apply sbox
         self.sub_bytes(&sk, &ck_debug);
 
@@ -178,7 +176,6 @@ impl Transistor {
     }
 }
 
-
 struct TransistorParameters {
     p: u64,
     w: usize,
@@ -190,15 +187,14 @@ struct TransistorParameters {
     r: usize,
 }
 
-
-
 fn main() {
+    print_header("Transistor Cipher");
 
     let transistor_parameters: TransistorParameters = TransistorParameters {
         p: 17,
         w: 32,
         k: 64,
-        s_box: vec![1,12,6,11,14,3,15,5,10,9,13,16,7,8,0,2,4],
+        s_box: vec![1, 12, 6, 11, 14, 3, 15, 5, 10, 9, 13, 16, 7, 8, 0, 2, 4],
         matrix_mc: vec![
             vec![16, 16, 16, 2],
             vec![16, 1, 2, 16],
@@ -217,17 +213,27 @@ fn main() {
 
     let mut transistor = Transistor::instantiate(transistor_parameters);
 
+    // 80bit security
     let (ck, sk) = gen_keys(&TRANSISTOR_ODD_PARAMETERS);
+    // 128bit security
+    // let (ck, sk) = gen_keys(&TRANSISTOR_ODD_PARAMETERS_128);
+    
     let (seed_w, seed_ks) = shake_keygen(b"0123456789abcdef", 64, 32, b"");
 
     transistor.initialize(&seed_w, &seed_ks, &ck);
 
-    for _ in 0..10{
-        let start = Instant::now();
-        let output = transistor.clock(&sk, &ck);
-        let stop = start.elapsed();
-        println!("Time for a round :{:?}", stop);
-        let output_clear : Vec<u64>= output.iter().map(|c| ck.decrypt(c)).collect();
-        println!("result:{:?}", output_clear);
-    }
+    // 10 rounds of transistor, I commented out to have the benchmark more clean
+    // for _ in 0..10 {
+    //     let start = Instant::now();
+    //     let output = transistor.clock(&sk, &ck);
+    //     let stop = start.elapsed();
+    //     println!("Time for a round :{:?}", stop);
+    //     let output_clear: Vec<u64> = output.iter().map(|c| ck.decrypt(c)).collect();
+    //     println!("result:{:?}", output_clear);
+    // }
+
+    print_header("Transistor Transciphering");
+    benchmark("HHE.Decomp()", 100, || {
+        let _output = transistor.clock(&sk, &ck);
+    });
 }

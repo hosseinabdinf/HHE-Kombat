@@ -1,0 +1,4 @@
+# sage
+psutil==7.0.0
+py-cpuinfo==9.0.0
+hwcounter
