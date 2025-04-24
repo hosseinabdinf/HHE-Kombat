@@ -1,11 +1,13 @@
 package hera
 
 import (
-	"HHELand/rtf_integration"
-	"HHELand/sym/hera"
 	"fmt"
 	"math"
 	"testing"
+
+	RtF "HHELand/rtf_integration"
+	"HHELand/sym/hera"
+	"HHELand/utils"
 )
 
 func testString(opName string, p hera.Parameter) string {
@@ -17,6 +19,7 @@ func TestHera(t *testing.T) {
 	for _, tc := range hera.TestVector {
 		// skip the test for 80-bit security
 		if tc.Params.Rounds == 4 {
+			// fmt.Println("Skipped: ", testString("HERA", tc.Params))
 			continue
 		}
 		fmt.Println(testString("HERA", tc.Params))
@@ -117,6 +120,82 @@ func testHEHera(t *testing.T, tc hera.TestContext) {
 	fmt.Println("Precision of HalfBoot(ciphertext)")
 	printDebug(heHera.params, ctBoot, valuesWant,
 		heHera.ckksDecryptor, heHera.ckksEncoder)
+}
+
+// TestNbHera for the new benchmarking
+func TestNbHera(t *testing.T) {
+	utils.PrintHeader("Hera Transciphering")
+
+	// skip the test for 80-bit security
+	// for 128-bit security, you can use {4 -> Mod:28, 5-> Mod:28, 6-> Mod:25, 7-> Mod:25}
+	tc := hera.TestVector[6]
+	fmt.Println(testString("HERA", tc.Params))
+
+	heHera := NewHEHera()
+
+	var data [][]float64
+	var nonces [][]byte
+	var keyStream [][]uint64
+
+	heHera.InitParams(tc.FVParamIndex, tc.Params)
+	heHera.HEKeyGen()
+
+	heHera.HalfBootKeyGen(tc.Radix)
+
+	heHera.InitHalfBootstrapper()
+
+	heHera.InitEvaluator()
+
+	heHera.InitCoefficients()
+
+	if heHera.fullCoefficients {
+		fmt.Println("Full Coefficients")
+		data = heHera.RandomDataGen(heHera.params.N())
+
+		nonces = heHera.NonceGen(heHera.params.N())
+
+		keyStream = make([][]uint64, heHera.params.N())
+		symHera := hera.NewHera(tc.Key, tc.Params)
+		for i := 0; i < heHera.params.N(); i++ {
+			keyStream[i] = symHera.KeyStream(nonces[i])
+		}
+
+		heHera.DataToCoefficients(data, heHera.params.N())
+
+		heHera.EncodeEncrypt(keyStream, heHera.params.N())
+	} else {
+		fmt.Println("Full half-Coefficients")
+		data = heHera.RandomDataGen(heHera.params.Slots())
+
+		nonces = heHera.NonceGen(heHera.params.Slots())
+
+		keyStream = make([][]uint64, heHera.params.Slots())
+		symHera := hera.NewHera(tc.Key, tc.Params)
+		for i := 0; i < heHera.params.Slots(); i++ {
+			keyStream[i] = symHera.KeyStream(nonces[i])
+		}
+
+		heHera.DataToCoefficients(data, heHera.params.Slots())
+
+		heHera.EncodeEncrypt(keyStream, heHera.params.Slots())
+	}
+
+	heHera.ScaleUp()
+
+	_ = heHera.InitFvHera()
+
+	// encrypts symmetric master key using BFV on the client side
+	heHera.EncryptSymKey(tc.Key)
+
+	// get BFV key stream using encrypted symmetric key, nonce, and counter on the server side
+	println("Hera Data length: ", 1<<heHera.params.LogSlots(), ", Log P:", heHera.params.LogP())
+	utils.Benchmark("HHE.Decomp()", func() {
+		fvKeyStreams := heHera.GetFvKeyStreams(nonces)
+
+		heHera.ScaleCiphertext(fvKeyStreams)
+
+		_ = heHera.HalfBoot()
+	})
 }
 
 func printDebug(params *RtF.Parameters, ciphertext *RtF.Ciphertext, valuesWant []complex128, decryptor RtF.CKKSDecryptor, encoder RtF.CKKSEncoder) {

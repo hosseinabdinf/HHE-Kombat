@@ -1,10 +1,11 @@
 package rubato
 
 import (
-	"HHELand"
-	"HHELand/utils"
 	"fmt"
 	"testing"
+
+	"HHELand"
+	"HHELand/utils"
 )
 
 func testString(opName string, p Parameter) string {
@@ -32,4 +33,23 @@ func TestRubato(t *testing.T) {
 		logger.PrintDataLen(tc.Key)
 		logger.PrintDataLen(ciphertext)
 	}
+}
+
+// TestNbRubato new benchmarking test for rubato
+func TestNbRubato(t *testing.T) {
+	t.Run("HHEKombat:Rubato", func(t *testing.T) {
+		utils.PrintHeader("Rubato SKE Benchmark")
+		tCase := TestsVector[0] // for rubato 5
+		//tCase := TestsVector[1] // for rubato 3
+		//tCase := TestsVector[2] // for rubato 2
+
+		fmt.Println(testString("Rubato", tCase.Params))
+
+		rubatoCipher := NewRubato(tCase.Key, tCase.Params)
+		encryptor := rubatoCipher.NewEncryptor()
+
+		utils.BenchmarkIter("SKE.Enc()", 100, func() {
+			_ = encryptor.Encrypt(tCase.Plaintext)
+		})
+	})
 }

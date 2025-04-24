@@ -33,3 +33,21 @@ func TestHera(t *testing.T) {
 		logger.PrintDataLen(ciphertext)
 	}
 }
+
+// TestNbHera new benchmarking test for rubato
+func TestNbHera(t *testing.T) {
+	t.Run("HHEKombat:Hera", func(t *testing.T) {
+		utils.PrintHeader("Hera SKE Benchmark")
+		// test vectors Hera4 = {0,1,2,4}, Hera5={4,5,6,7}
+		tCase := TestVector[6]
+
+		fmt.Println(testString("HERA", tCase.Params))
+		heraCipher := NewHera(tCase.Key, tCase.Params)
+		encryptor := heraCipher.NewEncryptor()
+		println("data len:", len(tCase.Plaintext))
+
+		utils.BenchmarkIter("SKE.Enc()", 100, func() {
+			_ = encryptor.Encrypt(tCase.Plaintext)
+		})
+	})
+}

@@ -12,7 +12,7 @@ import (
 )
 
 // DEBUG for turning debug logs on/off
-const DEBUG = true
+const DEBUG = false
 const MeMStat = true
 const PREFIX = "->> "
 

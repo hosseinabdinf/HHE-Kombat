@@ -2,7 +2,7 @@ package hera
 
 import (
 	"HHELand"
-	"HHELand/rtf_integration"
+	RtF "HHELand/rtf_integration"
 )
 
 type TestCase int
@@ -45,7 +45,7 @@ var TestVector = []TestContext{
 		Radix:        2,
 		Params: Parameter{
 			BlockSize: 16,
-			Modulus:   RtF.RtFHeraParams[HR80F].PlainModulus,
+			Modulus:   RtF.RtFHeraParams[HR80F].PlainModulus, // 28bits
 			Rounds:    4,
 		},
 		Key: HHELand.Key{
@@ -94,7 +94,7 @@ var TestVector = []TestContext{
 		Radix:        0,
 		Params: Parameter{
 			BlockSize: 16,
-			Modulus:   RtF.RtFHeraParams[HR80S].PlainModulus,
+			Modulus:   RtF.RtFHeraParams[HR80S].PlainModulus, // 28bits
 			Rounds:    4,
 		},
 		Key: HHELand.Key{0x84beeb4, 0x2df4e30, 0x9669076, 0x3115ba4,
@@ -141,7 +141,7 @@ var TestVector = []TestContext{
 		Radix:        2,
 		Params: Parameter{
 			BlockSize: 16,
-			Modulus:   RtF.RtFHeraParams[HR80AF].PlainModulus,
+			Modulus:   RtF.RtFHeraParams[HR80AF].PlainModulus, // 25bits
 			Rounds:    4,
 		},
 		Key: HHELand.Key{0x6e8a, 0x64dbc6, 0xbb2c45, 0xbe69c8,
@@ -188,7 +188,7 @@ var TestVector = []TestContext{
 		Radix:        0,
 		Params: Parameter{
 			BlockSize: 16,
-			Modulus:   RtF.RtFHeraParams[HR80AS].PlainModulus,
+			Modulus:   RtF.RtFHeraParams[HR80AS].PlainModulus, // 25bits
 			Rounds:    4,
 		},
 		Key: HHELand.Key{0x85b819, 0x11344b, 0x109583f, 0x6bb6a0,
@@ -236,14 +236,15 @@ var TestVector = []TestContext{
 		Radix:        2,
 		Params: Parameter{
 			BlockSize: 16,
-			Modulus:   RtF.RtFHeraParams[HR128F].PlainModulus,
+			Modulus:   RtF.RtFHeraParams[HR128F].PlainModulus, // 28bits
 			Rounds:    5,
 		},
 		Key: HHELand.Key{0x605ae5b, 0x62be1ef, 0x9dc75ea, 0x81e09a7,
 			0xf15fcd7, 0xa6c05b8, 0xef3d901, 0x7530002,
 			0x9ba3ea1, 0x7a643fc, 0x3cc3e91, 0xd567b7a,
 			0x94ef7f4, 0x8bf2919, 0x68625cf, 0xd3741ac},
-		Plaintext: HHELand.Plaintext{0x5363413, 0x56c4780, 0x736d68f, 0xa59c40,
+		Plaintext: HHELand.Plaintext{
+			0x5363413, 0x56c4780, 0x736d68f, 0xa59c40,
 			0xaf2e3e1, 0xf283c83, 0x1ac37bc, 0x9543afd,
 			0x875b9b7, 0xa7443cc, 0x9b97c65, 0x500406f,
 			0x36ad9a1, 0xe00f6a8, 0xedac574, 0x4ed0613,
@@ -283,7 +284,7 @@ var TestVector = []TestContext{
 		Radix:        0,
 		Params: Parameter{
 			BlockSize: 16,
-			Modulus:   RtF.RtFHeraParams[HR128S].PlainModulus,
+			Modulus:   RtF.RtFHeraParams[HR128S].PlainModulus, //28 bits
 			Rounds:    5,
 		},
 		Key: HHELand.Key{0xb52bd22, 0xb54da27, 0x8f873e6, 0xeb0707d,
@@ -330,7 +331,7 @@ var TestVector = []TestContext{
 		Radix:        2,
 		Params: Parameter{
 			BlockSize: 16,
-			Modulus:   RtF.RtFHeraParams[HR128AF].PlainModulus,
+			Modulus:   RtF.RtFHeraParams[HR128AF].PlainModulus, // 25 bits
 			Rounds:    5,
 		},
 		Key: HHELand.Key{0x1808681, 0x13578fc, 0x1828cf, 0x1bc1199,
@@ -377,7 +378,7 @@ var TestVector = []TestContext{
 		Radix:        2,
 		Params: Parameter{
 			BlockSize: 16,
-			Modulus:   RtF.RtFHeraParams[HR128AS].PlainModulus,
+			Modulus:   RtF.RtFHeraParams[HR128AS].PlainModulus, // 25bits
 			Rounds:    5,
 		},
 		Key: HHELand.Key{0xf1741, 0xb46639, 0x1a3ecaa, 0xd42827,

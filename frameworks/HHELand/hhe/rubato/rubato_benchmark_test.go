@@ -1,7 +1,7 @@
 package rubato
 
 import (
-	"HHELand/rtf_integration/ckks_fv"
+	RtF "HHELand/rtf_integration"
 	"HHELand/sym/rubato"
 	"crypto/rand"
 	"fmt"
@@ -95,7 +95,7 @@ func benchHERubato(tc rubato.TestContext, b *testing.B) {
 	})
 
 	// get BFV key stream using encrypted symmetric key, nonce, and counter on the server side
-	var fvKeyStreams []*ckks_fv.Ciphertext
+	var fvKeyStreams []*RtF.Ciphertext
 	b.Run("Rubato/FVKeyStream", func(b *testing.B) {
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {

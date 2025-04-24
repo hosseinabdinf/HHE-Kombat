@@ -1,12 +1,14 @@
 package rubato
 
 import (
-	ckks "HHELand/rtf_integration/ckks_fv"
-	"HHELand/sym/rubato"
 	"encoding/binary"
 	"fmt"
 	"math"
 	"testing"
+
+	RtF "HHELand/rtf_integration"
+	"HHELand/sym/rubato"
+	"HHELand/utils"
 )
 
 func testString(opName string, p rubato.Parameter) string {
@@ -101,9 +103,70 @@ func testHERubato(t *testing.T, tc rubato.TestContext) {
 		heRubato.ckksDecryptor, heRubato.ckksEncoder)
 }
 
-func printDebug(params *ckks.Parameters, ciphertext *ckks.Ciphertext,
-	valuesWant []complex128, decryptor ckks.CKKSDecryptor, encoder ckks.CKKSEncoder) {
+func TestNbRubato(t *testing.T) {
+	utils.PrintHeader("Rubato Transciphering")
+	tc := rubato.TestsVector[2]
+	fmt.Println(testString("Rubato", tc.Params))
 
+	heRubato := NewHERubato()
+
+	heRubato.InitParams(tc.FVParamIndex, tc.Params, len(tc.Plaintext))
+
+	heRubato.HEKeyGen()
+
+	heRubato.HalfBootKeyGen()
+
+	heRubato.InitHalfBootstrapper()
+
+	heRubato.InitEvaluator()
+
+	heRubato.InitCoefficients()
+
+	// use the plaintext data from test vector or generate Random ones for full coefficients
+	data := heRubato.RandomDataGen()
+
+	// need an array of 8-byte nonce for each block of data
+	nonces := heRubato.NonceGen()
+
+	// need an 8-byte counter
+	counter := make([]byte, 8)
+
+	// generate key stream using plain rubato
+	keyStream := make([][]uint64, heRubato.params.N())
+	for i := 0; i < heRubato.params.N(); i++ {
+		symRub := rubato.NewRubato(tc.Key, tc.Params)
+		binary.BigEndian.PutUint64(counter, uint64(i))
+		keyStream[i] = symRub.KeyStream(nonces[i], counter)
+	}
+
+	// data to coefficients
+	heRubato.DataToCoefficients(data)
+
+	// simulate the data encryption on client side and encode the result into polynomial representations
+	heRubato.EncodeEncrypt(keyStream)
+
+	heRubato.ScaleUp()
+
+	_ = heRubato.InitFvRubato()
+
+	// encrypts symmetric master key using BFV on the client side
+	heRubato.EncryptSymKey(tc.Key)
+
+	println("Data length: ", 1<<heRubato.params.LogSlots(), ", Log P:", heRubato.params.LogP())
+	utils.Benchmark("HHE.Decomp()", func() {
+		// get BFV key stream using encrypted symmetric key, nonce, and counter on the server side
+		fvKeyStreams := heRubato.GetFvKeyStreams(nonces, counter)
+
+		heRubato.ScaleCiphertext(fvKeyStreams)
+
+		// half bootstrapping
+		_ = heRubato.HalfBoot()
+	})
+}
+
+func printDebug(params *RtF.Parameters, ciphertext *RtF.Ciphertext,
+	valuesWant []complex128, decryptor RtF.CKKSDecryptor, encoder RtF.CKKSEncoder,
+) {
 	valuesTest := encoder.DecodeComplex(decryptor.DecryptNew(ciphertext), params.LogSlots())
 	logSlots := params.LogSlots()
 	sigma := params.Sigma()
@@ -113,7 +176,7 @@ func printDebug(params *ckks.Parameters, ciphertext *ckks.Ciphertext,
 	fmt.Printf("ValuesTest: %6.10f %6.10f %6.10f %6.10f...\n", valuesTest[0], valuesTest[1], valuesTest[2], valuesTest[3])
 	fmt.Printf("ValuesWant: %6.10f %6.10f %6.10f %6.10f...\n", valuesWant[0], valuesWant[1], valuesWant[2], valuesWant[3])
 
-	precStats := ckks.GetPrecisionStats(params, encoder, nil, valuesWant, valuesTest, logSlots, sigma)
+	precStats := RtF.GetPrecisionStats(params, encoder, nil, valuesWant, valuesTest, logSlots, sigma)
 
 	fmt.Println(precStats.String())
 }
