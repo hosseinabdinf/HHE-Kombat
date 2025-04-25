@@ -4,7 +4,7 @@ INCLUDE_DIRS += ./include/
 OPT_FLAGS +=
 CC = gcc
 
-SRC = cipher.c cipher_mt.c f2_arithm.c vertical_packing.c
+SRC = cipher.c cipher_mt.c f2_arithm.c vertical_packing.c utils.c
 
 all: main_cipher main_cipher_mp
 

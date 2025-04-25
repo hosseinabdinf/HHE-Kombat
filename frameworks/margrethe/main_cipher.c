@@ -1,6 +1,8 @@
 #include <cipher.h>
 #include <test_data.h>
 #include <benchmark_util.h>
+#include <utils.h>
+#include <stddef.h>
 
 // params
 const int N = 2048, k = 1, Bg_bit = 23, l = 1;
@@ -16,6 +18,10 @@ Torus torus_diff(Torus a, Torus b){
 
 extern TLWE_Key __debug_tlwe_exct_key;
 
+size_t getInputSizeBit(const uint8_t *data){
+  return (sizeof(data) / sizeof(data[0]))*8;
+}
+
 void test_CMUX_ct(){
   // HE setup
   TRLWE_Key key2 = trlwe_new_binary_key(N, k, rlwe_std_dev);
@@ -30,10 +36,20 @@ void test_CMUX_ct(){
   DFT_Polynomial * lut = vp_create_LUT2(_test_data_lut, OUT_PREC, vp, Bg_bit);
   TLWE * stream = tlwe_alloc_sample_array(OUT_SIZE, N);
   uint32_t * rnd_stream = gen_rnd_stream(_test_data_rnd);
-  // run cipher
-  MEASURE_TIME("", 10, "Cipher for 32 messages (single-threaded)", 
+
+  printf("--> Size of _test_data_key in bits: %zu\n", getInputSizeBit(_test_data_key));
+  printf("--> Size of _test_data_lut in bits: %zu\n", getInputSizeBit(_test_data_lut));
+  printf("--> Size of _test_data_rnd in bits: %zu\n", getInputSizeBit(_test_data_rnd));
+  BENCHMARK_ITER("HHE.Decomp() for 32 messages", 1, {
     stream_cipher2(stream, sk, lut, rnd_stream, OUT_SIZE, vp);
-  );
+  });
+
+  
+  // run cipher
+  // MEASURE_TIME("", 10, "Cipher for 32 messages (single-threaded)", 
+  //   stream_cipher2(stream, sk, lut, rnd_stream, OUT_SIZE, vp);
+  // );
+  
   printf("Output stream: ");
   double var = 0;
   for (size_t i = 0; i < OUT_SIZE; i++){
@@ -66,10 +82,21 @@ void test_CMUX_ct_mt(){
   DFT_Polynomial * lut = vp_create_LUT2(_test_data_lut, OUT_PREC, vp[0], Bg_bit);
   TLWE * stream = tlwe_alloc_sample_array(OUT_SIZE, N);
   uint32_t * rnd_stream = gen_rnd_stream(_test_data_rnd);
-  // run cipher
-  MEASURE_TIME("", 10, "Cipher for 32 messages (multi-threaded)", 
+
+  printf("--> Size of _test_data_key in bits: %zu\n", getInputSizeBit(_test_data_key));
+  printf("--> Size of _test_data_lut in bits: %zu\n", getInputSizeBit(_test_data_lut));
+  printf("--> Size of _test_data_rnd in bits: %zu\n", getInputSizeBit(_test_data_rnd));
+
+  BENCHMARK_ITER("HHE.Decomp() for 32 messages", 1, {
     stream_cipher_mt(stream, sk, lut, rnd_stream, OUT_SIZE, vp);
-  );
+  });
+
+  // run cipher
+  // MEASURE_TIME("", 10, "Cipher for 32 messages (multi-threaded)", 
+  //   stream_cipher_mt(stream, sk, lut, rnd_stream, OUT_SIZE, vp);
+  // );
+
+
   printf("Output stream: ");
   double var = 0;
   for (size_t i = 0; i < OUT_SIZE; i++){
@@ -90,9 +117,10 @@ void test_CMUX_ct_mt(){
 
 int main(int argc, char const *argv[])
 {
-  printf("Testing multi-threaded cipher\n");
+  PrintHeader("Margrethe Cipher");
+  PrintHeader("Multi-threaded Margrethe Transciphering");
   test_CMUX_ct_mt();
-  printf("\n\nTesting single-threaded cipher\n");
+  PrintHeader("Single-threaded Margrethe Transciphering");
   test_CMUX_ct();
   return 0;
 }

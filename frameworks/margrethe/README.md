@@ -4,11 +4,15 @@
 
 For processors with `AVX-512` and `VAES`:
 
-``` make ```
+```bash
+ make
+```
 
 For processors with only `AVX2/FMA`:
 
-``` make FFT_LIB=spqlios A_PRNG=none ENABLE_VAES=false ```
+```bash
+ make FFT_LIB=spqlios A_PRNG=none ENABLE_VAES=false 
+```
 
 For other cases, see [MOSFHET](https://github.com/antoniocgj/MOSFHET) compiling options. 
 
