@@ -1,0 +1,7 @@
+image id:  0
+Importing parameters
+Data imported successfully
+image label: 3
+Done generating Tensor
+layer 0
+[0.01584377885 0.016328401875000002 0.01923613995 0.019720762975 0.016813024875 0.0148745343 0.0177822709]   ...   [0 0 0 0 0 0 0]

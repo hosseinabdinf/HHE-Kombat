@@ -1,0 +1,5 @@
+Key Generation Time: 		0.389 s
+Encoding and Encryption Time: 	0 s
+Computation Time: 		2.242 s
+Decryption & Decoding Time: 	0.015 s
+End-to-end Runtime: 		69.048 s

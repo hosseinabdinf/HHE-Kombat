@@ -70,5 +70,5 @@ void PrintMemory(const char* name, long start, long end) {
 
 void PrintMemoryAvg(const char* name, long start, long end, int iter) {
   printf("-> Average %s memory: %.2f KB\n", name,
-         (end - start) / (1024.0 * iter));
+         (double)(end - start) / (iter));
 }
