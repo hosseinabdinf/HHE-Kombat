@@ -1,4 +1,5 @@
 import random, hashlib
+from benchmark_utils import *
 
 bit_invert = lambda x: int(bin(x)[2::][::-1],2)
 
@@ -91,6 +92,11 @@ const uint16_t _test_data_result[%d] = {%s};
       res.append(int("".join(map(str, self.s[i*count:(i+1)*count]))[::-1], 2))
     return res
 
-c = Cipher(lut_size=18, output_size=4)
-print(c.stream(32))
-c.save("include/test_data.h")
+if __name__ == "__main__":
+  print_header("Margrethe SKE Benchmark")
+  print_message("lut size: 18, output size: 4, #inputs: 32, input size: 32 * 8-bit")
+  
+  c = Cipher(lut_size=18, output_size=4)
+  benchmark("Margrethe SKE", 100, lambda: c.stream(32))
+  print(c.stream(32))
+  # c.save("include/test_data.h")

@@ -44,7 +44,7 @@ So, if you want to use them, you can simply run
 # Benchmarking (new)
 We made changes to the original code, now for benchmarking you should follow this after `make`:  
 
-- `cd src/cpp_pdte_transciphering`
+- `cd src`
 - `make`
 - `cd run`
 - `./test_filip`

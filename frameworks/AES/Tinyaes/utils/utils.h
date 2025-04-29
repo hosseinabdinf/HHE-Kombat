@@ -52,7 +52,7 @@ void PrintMemoryAvg(const char* label, long start, long end, int iter);
     printf("-> done! \n\n");                                      \
   } while (0)
 
-#define BENCHMARK_ITER(name, iterations, ...)                                 \
+  #define BENCHMARK_ITER(name, iterations, ...)                                 \
   do {                                                                        \
     PrintHeader(name);                                                        \
     struct timespec start_time, end_time;                                     \
@@ -71,12 +71,16 @@ void PrintMemoryAvg(const char* label, long start, long end, int iter);
     end_cycle = __rdtsc();                                                    \
     GetMemoryUsage(&end_camem, &end_heapmem, &end_physmem);                   \
     clock_gettime(CLOCK_MONOTONIC, &end_time);                                \
-                                                                              \
-    PrintTimeNSAvg(start_time, end_time, iterations);                         \
-    PrintCyclesAvg(start_cycle, end_cycle, iterations);                       \
+    printf(">>> Total: \n");                                                  \
+    PrintTimeNS(start_time, end_time);                                        \
+    PrintCycles(start_cycle, end_cycle);                                      \
     PrintMemory("Allocated ", start_camem, end_camem);                        \
     PrintMemory("Heap ", start_heapmem, end_heapmem);                         \
     PrintMemory("Physical ", start_physmem, end_physmem);                     \
+    printf("-> done! \n\n");                                                  \
+    printf(">>> Average of %d iterations: \n", iterations);                   \
+    PrintTimeNSAvg(start_time, end_time, iterations);                         \
+    PrintCyclesAvg(start_cycle, end_cycle, iterations);                       \
     PrintMemoryAvg("Allocated (avg)", start_camem, end_camem, iterations);    \
     PrintMemoryAvg("Heap (avg)", start_heapmem, end_heapmem, iterations);     \
     PrintMemoryAvg("Physical (avg)", start_physmem, end_physmem, iterations); \
