@@ -13,7 +13,6 @@ import (
 func PureBgv(paramsLiteral bgv.ParametersLiteral) {
 	var err error
 	var params bgv.Parameters
-
 	// 128-bit secure parameters enabling depth-7 circuits.
 	// LogN:14, LogQP: 431.
 	params, err = bgv.NewParametersFromLiteral(paramsLiteral)
@@ -76,6 +75,7 @@ func PureBgv(paramsLiteral bgv.ParametersLiteral) {
 	// Encrypts the vector of plaintext values
 	var xCt, aCt, bCt, axCt, resCt *rlwe.Ciphertext
 
+	fmt.Println("Params: ", params.LogP())
 	utils.PrintHeader("Linear Regression BGV")
 	println(
 		"Data Size: ", xPt.BinarySize()*8,
@@ -103,7 +103,7 @@ func PureBgv(paramsLiteral bgv.ParametersLiteral) {
 	utils.HandleError(err)
 	resCt, err = evl.AddNew(axCt, bCt)
 	utils.HandleError(err)
-	
+
 	// Allocates a vector for the reference values
 	want := make([]uint64, params.MaxSlots())
 	copy(want, linReg(xValuse, aValues, bValuse, T))

@@ -88,7 +88,7 @@ func TestNbPasta3(t *testing.T) {
 	t.Run("HHEKombat:Pasta3", func(t *testing.T) {
 		utils.PrintHeader("Pasta3 SKE Benchmark")
 		// test vectors Pasta3 = {0,1,2}
-		tCase := pasta3TestVector[0]
+		tCase := pasta3TestVector[1]
 
 		fmt.Println(testString("Pasta3", tCase.Params))
 		pastaCipher := NewPasta(tCase.Key, tCase.Params)

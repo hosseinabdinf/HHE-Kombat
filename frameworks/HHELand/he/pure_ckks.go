@@ -2,10 +2,11 @@ package he
 
 import (
 	"fmt"
-	"github.com/tuneinsight/lattigo/v6/utils/bignum"
-	"github.com/tuneinsight/lattigo/v6/utils/sampling"
 	"math"
 	"math/big"
+
+	"github.com/tuneinsight/lattigo/v6/utils/bignum"
+	"github.com/tuneinsight/lattigo/v6/utils/sampling"
 
 	"HHELand/utils"
 

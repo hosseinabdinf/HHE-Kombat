@@ -1,9 +1,10 @@
 package he
 
 import (
+	"testing"
+
 	"github.com/tuneinsight/lattigo/v6/examples"
 	"github.com/tuneinsight/lattigo/v6/schemes/ckks"
-	"testing"
 )
 
 func TestPureCKKS(t *testing.T) {

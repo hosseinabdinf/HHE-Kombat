@@ -39,9 +39,9 @@ func TestRubato(t *testing.T) {
 func TestNbRubato(t *testing.T) {
 	t.Run("HHEKombat:Rubato", func(t *testing.T) {
 		utils.PrintHeader("Rubato SKE Benchmark")
-		tCase := TestsVector[0] // for rubato 5
-		//tCase := TestsVector[1] // for rubato 3
-		//tCase := TestsVector[2] // for rubato 2
+		// tCase := TestsVector[0] // for rubato 5
+		// tCase := TestsVector[1] // for rubato 3
+		tCase := TestsVector[2] // for rubato 2
 
 		fmt.Println(testString("Rubato", tCase.Params))
 

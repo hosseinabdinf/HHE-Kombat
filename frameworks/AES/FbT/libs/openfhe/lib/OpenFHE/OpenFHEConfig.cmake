@@ -34,7 +34,7 @@ set (OpenFHE_EXE_LINKER_FLAGS "")
 # CXX info
 set(OpenFHE_CXX_STANDARD "17")
 set(OpenFHE_CXX_COMPILER_ID "Clang")
-set(OpenFHE_CXX_COMPILER_VERSION "14.0.0")
+set(OpenFHE_CXX_COMPILER_VERSION "16.0.6")
 
 # Build Options
 set(OpenFHE_STATIC "ON")
