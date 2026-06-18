@@ -62,6 +62,13 @@ From there, consult any individual instructions within each framework or languag
 
 🔍 **Note that we already included our benchmarking utilites in each framework directory to make it easier to benchmark the frameworks. So, you just need to follow the instructions in the framework directory to build and run the benchmarks.**
 
+## Security Normalization & References
+
+For details on the benchmark comparison methodology and external references, see:
+
+* **[Security-Level Normalization](./security_level_normalization.md)**: Specification of the security-level normalization and the HHE-128 profile.
+* **[External References](./repo_readme_references_section.md)**: Links to upstream implementation repositories, HE libraries, and system documentation.
+
 ## License Information
 
 Please note that the available implementations in this repository are covered by their respective licenses. Consult the individual license files within each framework directory for specific terms and conditions.
